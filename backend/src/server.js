@@ -453,8 +453,8 @@ app.post('/api/affiliate/orders/import', (req, res) => {
 // 5.4 YouTube Shorts: Xưởng Truyện Tranh Ngụ Ngôn & Triết Lý (Comic Studio)
 app.post('/api/youtube/comic-script', async (req, res) => {
   try {
-    const { topic, style } = req.body;
-    const story = await generateComicStoryScript({ topic, style });
+    const { topic, style, language } = req.body;
+    const story = await generateComicStoryScript({ topic, style, language });
     res.json({ success: true, story });
   } catch (err) {
     console.error('Lỗi sinh kịch bản truyện tranh:', err.message);

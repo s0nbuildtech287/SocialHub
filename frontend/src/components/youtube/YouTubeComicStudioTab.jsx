@@ -149,28 +149,33 @@ const BGM_PRESETS = [
 ];
 
 const VOICE_OPTIONS_MALE = [
-  { id: 'en-US-GuyNeural', name: 'Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
-  { id: 'en-US-AndrewNeural', name: 'Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
-  { id: 'en-GB-RyanNeural', name: 'Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
-  { id: 'en-US-BrianNeural', name: 'Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' }
+  { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Truyền cảm, tự nhiên)' },
+  { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
+  { id: 'en-US-AndrewNeural', name: '🇺🇸 Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
+  { id: 'en-GB-RyanNeural', name: '🇬🇧 Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
+  { id: 'en-US-BrianNeural', name: '🇺🇸 Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' }
 ];
 
 const VOICE_OPTIONS_FEMALE = [
-  { id: 'en-US-AriaNeural', name: 'Aria (Nữ Mỹ - Nhẹ nhàng, sâu sắc)' },
-  { id: 'en-US-AvaNeural', name: 'Ava (Nữ Mỹ - Điềm đạm, ấm áp)' },
-  { id: 'en-GB-SoniaNeural', name: 'Sonia (Nữ Anh - Thanh lịch, tinh tế)' },
-  { id: 'en-US-EmmaNeural', name: 'Emma (Nữ Mỹ - Tươi vui, tự nhiên)' }
+  { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Dịu dàng, sâu lắng)' },
+  { id: 'en-US-AriaNeural', name: '🇺🇸 Aria (Nữ Mỹ - Nhẹ nhàng, sâu sắc)' },
+  { id: 'en-US-AvaNeural', name: '🇺🇸 Ava (Nữ Mỹ - Điềm đạm, ấm áp)' },
+  { id: 'en-GB-SoniaNeural', name: '🇬🇧 Sonia (Nữ Anh - Thanh lịch, tinh tế)' },
+  { id: 'en-US-EmmaNeural', name: '🇺🇸 Emma (Nữ Mỹ - Tươi vui, tự nhiên)' }
 ];
 
 const VOICE_OPTIONS_NARRATOR = [
-  { id: 'en-US-ChristopherNeural', name: 'Christopher (Nam Mỹ - Trầm ấm, kinh điển)' },
-  { id: 'en-GB-ThomasNeural', name: 'Thomas (Nam Anh - Đậm chất cổ tích/BBC)' },
-  { id: 'en-US-GuyNeural', name: 'Guy (Nam Mỹ - Giọng kể hiện đại)' }
+  { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Giọng kể trầm ấm, truyền cảm)' },
+  { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Giọng kể dịu dàng, cảm xúc)' },
+  { id: 'en-US-ChristopherNeural', name: '🇺🇸 Christopher (Nam Mỹ - Trầm ấm, kinh điển)' },
+  { id: 'en-GB-ThomasNeural', name: '🇬🇧 Thomas (Nam Anh - Đậm chất cổ tích/BBC)' },
+  { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Giọng kể hiện đại)' }
 ];
 
 export default function YouTubeComicStudioTab() {
   const [activeTab, setActiveTab] = useState('generator'); // 'generator' | 'video-maker' | 'library' | 'music-guide'
   const [topicInput, setTopicInput] = useState('');
+  const [storyLanguage, setStoryLanguage] = useState('vi'); // 'vi' (Tiếng Việt) | 'en' (Tiếng Anh)
   const [generating, setGenerating] = useState(false);
   const [currentStory, setCurrentStory] = useState(null); // Không hiển thị truyện mẫu mặc định để tránh hiểu nhầm
   const [copiedKey, setCopiedKey] = useState(null);
@@ -191,9 +196,9 @@ export default function YouTubeComicStudioTab() {
   const [selectedBgm, setSelectedBgm] = useState('nostalgic_piano');
   const [bgmVolume, setBgmVolume] = useState(20); // 20%
   const [voiceCast, setVoiceCast] = useState({
-    charA: 'en-US-GuyNeural',
-    charB: 'en-US-AriaNeural',
-    narrator: 'en-US-ChristopherNeural'
+    charA: 'vi-VN-NamMinhNeural',
+    charB: 'vi-VN-HoaiMyNeural',
+    narrator: 'vi-VN-NamMinhNeural'
   });
   const [playingBgmId, setPlayingBgmId] = useState(null);
   const audioRef = React.useRef(null);
@@ -228,11 +233,22 @@ export default function YouTubeComicStudioTab() {
       let raw = p.dialogue || p.dialogueOrNarration || '';
       let speaker = 'charA';
       const low = raw.toLowerCase();
-      if (low.includes('narrator:') || low.includes('caption:')) {
+      if (
+        low.includes('narrator:') || low.includes('caption:') ||
+        low.includes('dẫn chuyện:') || low.includes('người kể:') || low.includes('chú thích:')
+      ) {
         speaker = 'narrator';
-      } else if (low.includes('maya:') || low.includes('woman:') || low.includes('girl:') || low.includes('mother:')) {
+      } else if (
+        low.includes('maya:') || low.includes('woman:') || low.includes('girl:') || low.includes('mother:') ||
+        low.includes('bà lão:') || low.includes('cô bé:') || low.includes('cô gái:') || low.includes('người mẹ:') ||
+        low.includes('nữ:') || low.includes('chị:') || low.includes('em gái:')
+      ) {
         speaker = 'charB';
-      } else if (low.includes('leo:') || low.includes('man:') || low.includes('boy:') || low.includes('neighbor:')) {
+      } else if (
+        low.includes('leo:') || low.includes('man:') || low.includes('boy:') || low.includes('neighbor:') ||
+        low.includes('ông lão:') || low.includes('cậu bé:') || low.includes('chàng trai:') || low.includes('người thợ:') ||
+        low.includes('người cha:') || low.includes('người thầy:') || low.includes('học trò:') || low.includes('nam:')
+      ) {
         speaker = 'charA';
       } else {
         speaker = idx % 2 === 0 ? 'charA' : 'charB';
@@ -331,13 +347,15 @@ export default function YouTubeComicStudioTab() {
     setNotification(null);
     try {
       const res = await axios.post('/api/youtube/comic-script', {
-        topic: topicInput.trim()
+        topic: topicInput.trim(),
+        language: storyLanguage
       });
       if (res.data?.story) {
-        setCurrentStory(res.data.story);
+        const enrichedStory = { ...res.data.story, language: storyLanguage };
+        setCurrentStory(enrichedStory);
         setNotification({
           type: 'success',
-          message: `Đã sáng tác xong câu chuyện: "${res.data.story.title || res.data.story.vietnameseTitle}"! Hãy kéo xuống xem kịch bản và lấy Prompt vẽ tranh bên dưới.`
+          message: `Đã sáng tác xong kịch bản (${storyLanguage === 'vi' ? '🇻🇳 Tiếng Việt' : '🇬🇧 Tiếng Anh'}): "${enrichedStory.title || enrichedStory.vietnameseTitle}"! Hãy kéo xuống xem kịch bản và lấy Prompt vẽ tranh bên dưới.`
         });
         setTimeout(() => {
           const el = document.getElementById('story-board');
@@ -367,6 +385,7 @@ export default function YouTubeComicStudioTab() {
     if (!story) return '';
     const title = story.title || 'THE FABLE';
     const panels = story.panels || [];
+    const isVi = (story.language === 'vi') || storyLanguage === 'vi';
 
     // Ghép từng panel theo định dạng đánh số
     const panelsText = panels.map((p, idx) => {
@@ -389,10 +408,10 @@ The page is strictly structured as an 11-panel sequential comic page arranged in
 
 Top header in bold retro storybook typography: "${title}".
 
-Panels sequence (2 characters having a meaningful dialogue):
+Panels sequence (2 characters having a meaningful dialogue${isVi ? ' with Vietnamese speech bubbles' : ''}):
 ${panelsText}
 
-Clear readable speech bubbles and small narrative caption boxes with legible font inside each panel. Expressive gentle characters talking directly to each other.
+Clear readable speech bubbles and small narrative caption boxes with legible typography inside each panel. Expressive gentle characters talking directly to each other.
 
 Bottom footer features a wide inspirational quote with a small delicate central icon: "${quote}".
 
@@ -402,7 +421,29 @@ Masterpiece vintage fable comic sheet, 11 panels. --ar 9:16 --v 6.1`;
   // Copy prompt kèm chủ đề cụ thể để đem sang web chatbot (ChatGPT, Claude, Grok...)
   const handleCopyPromptForWeb = () => {
     const topic = topicInput.trim() || 'Bài học sâu sắc về sự kiên trì và cuộc sống';
-    const promptText = `Bạn là một nhà biên kịch truyện tranh ngụ ngôn ngắn (Fable Comic Writer) chuyên sản xuất nội dung cảm động, truyền cảm hứng trên YouTube Shorts & TikTok.
+    const isVi = storyLanguage === 'vi';
+    const promptText = isVi ? `Bạn là một nhà biên kịch truyện tranh ngụ ngôn ngắn (Fable Comic Writer) chuyên sản xuất nội dung cảm động, truyền cảm hứng trên YouTube Shorts & TikTok cho khán giả Việt Nam.
+
+Nhiệm vụ: Viết một câu chuyện ngụ ngôn sâu sắc bằng TIẾNG VIỆT về chủ đề: "${topic}"
+Phong cách: Tương tự như câu chuyện kinh điển "THE OLD WOMAN AND THE APPLE TREE" (Bà lão 80 tuổi trồng cây táo có 11 khung tranh).
+
+QUY TẮC BẮT BUỘC:
+1. LUÔN CÓ 2 NHÂN VẬT ĐỐI THOẠI TRỰC TIẾP:
+   - Nhân vật A (Người thông thái/chính trực/kiên trì): Ví dụ Bà lão, Người thợ già, Người thầy, Người làm vườn... Đại diện cho đạo đức, sự tử tế và cái nhìn sâu xa.
+   - Nhân vật B (Người hoài nghi/thực dụng/bốc đồng): Ví dụ Cậu học trò, Người hàng xóm, Người qua đường... Đại diện cho sự nóng vội, hoài nghi hoặc thực dụng.
+2. BẮT BUỘC CÓ ĐỦ 10 ĐẾN 12 KHUNG TRANH (PANELS) THEO LƯỚI 2 CỘT:
+   - Panel 1 & 2: Bối cảnh Nhân vật A đang kiên trì làm việc + Nhân vật B bước đến hỏi lý do ("Tại sao phải tốn công?").
+   - Panel 3 & 4: Nhân vật A đáp bình thản + Nhân vật B phản biện ("Nhưng bạn sẽ chẳng kịp thấy thành quả đâu").
+   - Panel 5 & 6: Cú lật ngược tư duy đắt giá (The Wisdom) của Nhân vật A + Nhân vật B đứng im lặng suy ngẫm (Stood in silence).
+   - Panel 7, 8, 9: Dòng chảy thời gian 3 ô nhỏ (Năm 1, Năm 5, Năm 10) hoặc 3 giai đoạn trưởng thành âm thầm / bài học nhân quả qua năm tháng.
+   - Panel 10 & 11: Hoa trái ngọt ngào để lại cho thế hệ sau hoặc khung cảnh hoàng hôn ấm áp chiêm nghiệm cuộc đời.
+3. LỜI THOẠI HOÀN TOÀN BẰNG TIẾNG VIỆT:
+   - Dưới 12 từ mỗi ô thoại, cực kỳ súc tích, mộc mạc và dễ đọc trên điện thoại.
+   - Định dạng: Tên nhân vật: "Lời thoại tiếng Việt"
+
+Yêu cầu định dạng xuất ra:
+- Viết 100% bằng Tiếng Việt (Tiêu đề, phân cảnh, lời thoại và câu danh ngôn ở đáy trang).
+- Cuối bài xuất thêm 1 Prompt tiếng Anh hoàn chỉnh (11 panels, 2 columns, style warm storybook vintage watercolor, --ar 9:16) kèm chỉ dẫn vẽ các bong bóng thoại tiếng Việt để dán vào Midjourney / Ideogram.` : `Bạn là một nhà biên kịch truyện tranh ngụ ngôn ngắn (Fable Comic Writer) chuyên sản xuất nội dung cảm động, truyền cảm hứng trên YouTube Shorts & TikTok.
 
 Nhiệm vụ: Viết một câu chuyện ngụ ngôn sâu sắc về chủ đề: "${topic}"
 Phong cách: Tương tự như câu chuyện kinh điển "THE OLD WOMAN AND THE APPLE TREE" (Bà lão 80 tuổi trồng cây táo có 11 khung tranh).
@@ -427,7 +468,7 @@ Yêu cầu định dạng:
     setCopiedKey('web_prompt_dynamic');
     setNotification({
       type: 'success',
-      message: `Đã copy Prompt chuẩn cho chủ đề: "${topic}"! Bạn chỉ việc mở ChatGPT hoặc Claude và bấm Ctrl+V để chatbot viết ngay.`
+      message: `Đã copy Prompt (${isVi ? '🇻🇳 Tiếng Việt' : '🇬🇧 Tiếng Anh'}) cho chủ đề: "${topic}"! Bạn chỉ việc mở ChatGPT hoặc Claude và bấm Ctrl+V để chatbot viết ngay.`
     });
     setTimeout(() => setCopiedKey(null), 3500);
   };
@@ -443,7 +484,7 @@ Yêu cầu mỗi chủ đề gồm:
 2. Hai nhân vật đối thoại (Ai là người thông thái? Ai là người hoài nghi/thực dụng?).
 3. Tình huống xung đột chính.
 4. Cú lật ngược tư duy (The Wisdom plot twist) khiến người xem phải sững sờ suy ngẫm.
-5. Câu slogan chốt hạ (Punchline) bằng tiếng Anh thật ý nghĩa.
+5. Câu slogan chốt hạ (Punchline) bằng tiếng Việt và tiếng Anh thật ý nghĩa.
 
 Hãy ưu tiên các chủ đề chạm vào cảm xúc người xem: sự hy sinh thầm lặng, lòng trung thực, không so sánh mình với người khác, sự kiên trì trong bóng tối, và luật nhân quả cuộc đời.`;
   };
@@ -451,6 +492,23 @@ Hãy ưu tiên các chủ đề chạm vào cảm xúc người xem: sự hy sin
   // Prompt kịch bản đầy đủ cho chatbot bên ngoài
   const getExternalChatbotPrompt = () => {
     const topic = topicInput.trim() || (currentStory && currentStory.topic) || 'Sự kiên trì vượt qua nghịch cảnh';
+    const isVi = (currentStory && currentStory.language === 'vi') || storyLanguage === 'vi';
+    if (isVi) {
+      return `Bạn là một nhà biên kịch truyện tranh ngụ ngôn ngắn (Fable Comic Writer) chuyên sản xuất nội dung cảm động, truyền cảm hứng trên YouTube Shorts & TikTok cho khán giả Việt Nam.
+
+Nhiệm vụ: Viết một câu chuyện ngụ ngôn sâu sắc bằng TIẾNG VIỆT về chủ đề: "${topic}"
+Câu chuyện phải được chia thành một trang truyện tranh dọc (Vertical Comic Strip 9:16) gồm 10 đến 12 khung hình (Panels), tuân theo đúng cấu trúc sau:
+
+1. Tiêu đề (Header): Ngắn gọn bằng tiếng Việt, viết hoa.
+2. Panel 1 & 2 (Bối cảnh): Giới thiệu nhân vật chính và một hành động kiên trì / đáng ngưỡng mộ. Nhân vật thứ hai bước đến hoài nghi.
+3. Panel 3 & 4 (Xung đột / Đối thoại): Cuộc tranh luận giữa cái nhìn thực dụng và sự tử tế/kiên định.
+4. Panel 5 & 6 (Bước ngoặt trí tuệ - The Wisdom): Cú lật ngược tư duy đắt giá khiến đối phương sững sờ suy ngẫm.
+5. Panel 7, 8, 9 (Dòng chảy thời gian): Minh chứng bài học nhân quả theo năm tháng (Năm 1, Năm 5, Năm 10).
+6. Panel 10 & 11 (Thông điệp đúc kết): Kết cục ấm áp, sự thanh thản trong tâm hồn.
+7. Câu chốt cuối ảnh (Bottom Punchline): 1 câu danh ngôn tiếng Việt in đậm truyền động lực sâu sắc.
+
+Yêu cầu định dạng: Lời thoại hoàn toàn bằng Tiếng Việt ngắn gọn, súc tích (dưới 12 từ mỗi ô thoại). Xuất kèm Prompt tiếng Anh để vẽ nguyên trang truyện bằng Midjourney / Ideogram.`;
+    }
     return `Bạn là một nhà biên kịch truyện tranh ngụ ngôn ngắn (Fable Comic Writer) chuyên sản xuất nội dung cảm động, truyền cảm hứng trên YouTube Shorts & TikTok.
 
 Nhiệm vụ: Viết một câu chuyện ngụ ngôn sâu sắc về chủ đề: "${topic}"
@@ -577,14 +635,60 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
           
           {/* Input Box & Quick Topic Pills */}
           <div className="app-card p-5 sm:p-6 space-y-4 border-red-500/20">
-            <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span>Nhập chủ đề hoặc bài học cuộc sống bạn muốn kể:</span>
-              </label>
-              <p className="text-xs text-slate-500">
-                AI sẽ biến ý tưởng này thành một câu chuyện ngụ ngôn 6-8 khung tranh đầy cảm xúc.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="space-y-0.5">
+                <label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-amber-500" />
+                  <span>Nhập chủ đề hoặc bài học cuộc sống bạn muốn kể:</span>
+                </label>
+                <p className="text-xs text-slate-500">
+                  AI sẽ biến ý tưởng này thành một câu chuyện ngụ ngôn 11 khung tranh cảm động theo chuẩn lưới 2 cột.
+                </p>
+              </div>
+
+              {/* Nút chọn ngôn ngữ: Tiếng Việt vs Tiếng Anh */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Ngôn ngữ kịch bản:</span>
+                <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStoryLanguage('vi');
+                      setVoiceCast({
+                        charA: 'vi-VN-NamMinhNeural',
+                        charB: 'vi-VN-HoaiMyNeural',
+                        narrator: 'vi-VN-NamMinhNeural'
+                      });
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                      storyLanguage === 'vi'
+                        ? 'bg-red-600 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>🇻🇳 Tiếng Việt</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStoryLanguage('en');
+                      setVoiceCast({
+                        charA: 'en-US-GuyNeural',
+                        charB: 'en-US-AriaNeural',
+                        narrator: 'en-US-ChristopherNeural'
+                      });
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                      storyLanguage === 'en'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>🇬🇧 Tiếng Anh (English)</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <form onSubmit={handleGenerateStory} className="space-y-3">
@@ -606,7 +710,7 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     title="Dùng trực tiếp AI hệ thống (Gemini)"
                   >
                     <Sparkles className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-                    <span>{generating ? 'Đang sáng tác...' : '⚡ Sinh Bằng AI Hệ Thống'}</span>
+                    <span>{generating ? 'Đang sáng tác...' : `⚡ Sinh Kịch Bản ${storyLanguage === 'vi' ? 'Tiếng Việt' : 'Tiếng Anh'}`}</span>
                   </button>
 
                   {/* Nút 2: Copy Prompt kèm chủ đề sang Web Chatbot */}
@@ -674,7 +778,7 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
             {generating && (
               <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center gap-2.5 text-xs text-red-600 dark:text-red-400 font-semibold animate-pulse">
                 <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
-                <span>AI đang phân tích cốt truyện, chia 7 khung tranh và viết prompt tiếng Anh cho bạn... Chờ chút nhé!</span>
+                <span>AI đang phân tích cốt truyện, chia 11 khung tranh và viết kịch bản {storyLanguage === 'vi' ? 'Tiếng Việt' : 'Tiếng Anh'} cho bạn... Chờ chút nhé!</span>
               </div>
             )}
 
@@ -739,9 +843,14 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
               <div className="app-card-raised p-6 space-y-4 border-l-4 border-red-500">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div>
-                    <span className="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
-                      {currentStory.vietnameseTitle || "Truyện Tranh Shorts"}
-                    </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                        {currentStory.vietnameseTitle || "Truyện Tranh Shorts"}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        {currentStory.language === 'vi' || storyLanguage === 'vi' ? '🇻🇳 Lời Thoại Tiếng Việt' : '🇬🇧 English Script'}
+                      </span>
+                    </div>
                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-wide">
                       {currentStory.title}
                     </h3>
@@ -1094,7 +1203,7 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                             <User className="w-3.5 h-3.5 text-red-500" />
-                            <span>Phân vai diễn viên lồng tiếng (Tiếng Anh tự nhiên):</span>
+                            <span>Phân vai diễn viên lồng tiếng (Hỗ trợ cả Tiếng Việt & Tiếng Anh):</span>
                           </span>
                           <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
                             ✓ Khớp 100% từng khung hình
