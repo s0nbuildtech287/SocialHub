@@ -186,6 +186,8 @@ export default function YouTubeComicStudioTab() {
   // Audio & Voice States
   const [audioMode, setAudioMode] = useState('silent'); // 'silent' | 'ai_voice' | 'custom_audio'
   const [enableBgm, setEnableBgm] = useState(true);
+  const [bgmSourceType, setBgmSourceType] = useState('preset'); // 'preset' | 'upload'
+  const [customBgmFile, setCustomBgmFile] = useState(null);
   const [selectedBgm, setSelectedBgm] = useState('nostalgic_piano');
   const [bgmVolume, setBgmVolume] = useState(20); // 20%
   const [voiceCast, setVoiceCast] = useState({
@@ -285,19 +287,26 @@ export default function YouTubeComicStudioTab() {
       formData.append('mode', renderMode);
       formData.append('audioMode', audioMode);
 
+      // Xử lý BGM (Nhạc nền)
+      if (enableBgm) {
+        if (bgmSourceType === 'upload' && customBgmFile) {
+          formData.append('bgmFile', customBgmFile);
+          formData.append('bgmPreset', 'custom');
+        } else {
+          formData.append('bgmPreset', selectedBgm);
+        }
+        formData.append('bgmVolume', (bgmVolume / 100).toFixed(2));
+      } else {
+        formData.append('bgmPreset', 'none');
+      }
+
       if (audioMode === 'ai_voice') {
         formData.append('voiceCast', JSON.stringify(voiceCast));
         formData.append('panelDialogues', JSON.stringify(getStoryDialogues()));
-        formData.append('bgmPreset', enableBgm ? selectedBgm : 'none');
-        formData.append('bgmVolume', (bgmVolume / 100).toFixed(2));
       } else if (audioMode === 'custom_audio') {
         if (videoAudioFile) {
           formData.append('audio', videoAudioFile);
         }
-      } else {
-        // Silent video, but user may still want BGM piano music
-        formData.append('bgmPreset', enableBgm ? selectedBgm : 'none');
-        formData.append('bgmVolume', (bgmVolume / 100).toFixed(2));
       }
 
       const res = await axios.post('/api/youtube/render-shorts', formData, {
@@ -1204,50 +1213,99 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
 
                       {enableBgm && (
                         <div className="space-y-3 pl-5 border-l-2 border-red-500/30 animate-fadeIn">
-                          {/* Danh sách 4 bản nhạc piano mẫu có nút nghe thử */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {BGM_PRESETS.map((bgm) => (
-                              <div
-                                key={bgm.id}
-                                onClick={() => setSelectedBgm(bgm.id)}
-                                className={`p-2.5 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
-                                  selectedBgm === bgm.id
-                                    ? 'bg-red-500/10 border-red-500 shadow-xs'
-                                    : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                                }`}
-                              >
-                                <div className="space-y-0.5 min-w-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                                      {bgm.name}
-                                    </span>
-                                    <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
-                                      {bgm.tag}
-                                    </span>
-                                  </div>
-                                  <p className="text-[10px] text-slate-500 truncate">
-                                    {bgm.desc}
-                                  </p>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    togglePlayBgm(bgm);
-                                  }}
-                                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-red-600 hover:text-white text-slate-700 dark:text-slate-300 transition shrink-0"
-                                  title="Nghe thử bài nhạc này"
-                                >
-                                  {playingBgmId === bgm.id ? (
-                                    <Pause className="w-3.5 h-3.5 text-red-600 hover:text-white" />
-                                  ) : (
-                                    <Play className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              </div>
-                            ))}
+                          
+                          {/* Nút chuyển đổi: Nhạc có sẵn vs Tự tải lên */}
+                          <div className="flex items-center gap-2 pb-1 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => setBgmSourceType('preset')}
+                              className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${
+                                bgmSourceType === 'preset'
+                                  ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 shadow-xs'
+                                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                              }`}
+                            >
+                              <span>🎹 4 Bản Piano Có Sẵn</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setBgmSourceType('upload')}
+                              className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${
+                                bgmSourceType === 'upload'
+                                  ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 shadow-xs'
+                                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                              }`}
+                            >
+                              <UploadCloud className="w-3.5 h-3.5" />
+                              <span>📁 Tải Lên File Nhạc MP3 Riêng</span>
+                            </button>
                           </div>
+
+                          {/* Tùy chọn A: 4 bản nhạc piano mẫu có nút nghe thử */}
+                          {bgmSourceType === 'preset' ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {BGM_PRESETS.map((bgm) => (
+                                <div
+                                  key={bgm.id}
+                                  onClick={() => setSelectedBgm(bgm.id)}
+                                  className={`p-2.5 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
+                                    selectedBgm === bgm.id
+                                      ? 'bg-red-500/10 border-red-500 shadow-xs'
+                                      : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                  }`}
+                                >
+                                  <div className="space-y-0.5 min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                        {bgm.name}
+                                      </span>
+                                      <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
+                                        {bgm.tag}
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 truncate">
+                                      {bgm.desc}
+                                    </p>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      togglePlayBgm(bgm);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-red-600 hover:text-white text-slate-700 dark:text-slate-300 transition shrink-0"
+                                    title="Nghe thử bài nhạc này"
+                                  >
+                                    {playingBgmId === bgm.id ? (
+                                      <Pause className="w-3.5 h-3.5 text-red-600 hover:text-white" />
+                                    ) : (
+                                      <Play className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            /* Tùy chọn B: Tự tải file nhạc nền MP3 riêng */
+                            <div className="p-3.5 rounded-xl bg-white dark:bg-slate-800/80 border border-dashed border-slate-300 dark:border-slate-700 space-y-2">
+                              <input
+                                type="file"
+                                accept="audio/*"
+                                onChange={(e) => setCustomBgmFile(e.target.files?.[0] || null)}
+                                className="text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-600 file:text-white hover:file:bg-amber-500 cursor-pointer"
+                              />
+                              {customBgmFile && (
+                                <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                                  <Check className="w-4 h-4" />
+                                  <span>Đã chọn file nhạc nền: <b>{customBgmFile.name}</b></span>
+                                </div>
+                              )}
+                              <p className="text-[11px] text-slate-400">
+                                Hệ thống sẽ tự động hạ nhỏ âm lượng để làm nền êm ái cho giọng đọc theo mức % bạn chọn bên dưới.
+                              </p>
+                            </div>
+                          )}
 
                           {/* Thanh chỉnh âm lượng nhạc nền */}
                           <div className="flex items-center gap-3 pt-1">
