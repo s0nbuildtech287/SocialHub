@@ -208,6 +208,33 @@ export default function YouTubeComicStudioTab() {
   });
   const [playingBgmId, setPlayingBgmId] = useState(null);
   const audioRef = React.useRef(null);
+  const [playingVoiceId, setPlayingVoiceId] = useState(null);
+  const voiceAudioRef = React.useRef(null);
+
+  // Play / Pause preview audio for Voice
+  const togglePlayVoice = (voiceId) => {
+    if (playingVoiceId === voiceId) {
+      if (voiceAudioRef.current) {
+        voiceAudioRef.current.pause();
+      }
+      setPlayingVoiceId(null);
+    } else {
+      if (voiceAudioRef.current) {
+        voiceAudioRef.current.pause();
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        setPlayingBgmId(null);
+      }
+      const audio = new Audio(`http://localhost:5000/assets/voices/${voiceId}.mp3`);
+      audio.volume = 0.9;
+      audio.onended = () => setPlayingVoiceId(null);
+      audio.onerror = () => setPlayingVoiceId(null);
+      audio.play().catch(() => {});
+      voiceAudioRef.current = audio;
+      setPlayingVoiceId(voiceId);
+    }
+  };
 
   const [renderingVideo, setRenderingVideo] = useState(false);
   const [renderedResult, setRenderedResult] = useState(null);
@@ -1234,19 +1261,34 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                               <span>Nhân vật 1 (Chính):</span>
                               <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
-                            <select
-                              value={voiceCast.charA}
-                              onChange={(e) => setVoiceCast({ ...voiceCast, charA: e.target.value })}
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                            >
-                              {VOICE_CATALOG.map((group) => (
-                                <optgroup key={group.group} label={group.group}>
-                                  {group.voices.map((v) => (
-                                    <option key={v.id} value={v.id}>{v.name}</option>
-                                  ))}
-                                </optgroup>
-                              ))}
-                            </select>
+                            <div className="flex items-center gap-1.5">
+                              <select
+                                value={voiceCast.charA}
+                                onChange={(e) => setVoiceCast({ ...voiceCast, charA: e.target.value })}
+                                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                              >
+                                {VOICE_CATALOG.map((group) => (
+                                  <optgroup key={group.group} label={group.group}>
+                                    {group.voices.map((v) => (
+                                      <option key={v.id} value={v.id}>{v.name}</option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => togglePlayVoice(voiceCast.charA)}
+                                className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition flex items-center gap-1 shrink-0 ${
+                                  playingVoiceId === voiceCast.charA
+                                    ? 'bg-red-600 text-white border-red-600 animate-pulse'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                }`}
+                                title="Bấm để nghe thử mẫu giọng này"
+                              >
+                                {playingVoiceId === voiceCast.charA ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-red-500" />}
+                                <span className="text-[10px]">{playingVoiceId === voiceCast.charA ? 'Dừng' : 'Thử'}</span>
+                              </button>
+                            </div>
                           </div>
 
                           {/* Nhân vật 2 */}
@@ -1255,19 +1297,34 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                               <span>Nhân vật 2 (Đối thoại):</span>
                               <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
-                            <select
-                              value={voiceCast.charB}
-                              onChange={(e) => setVoiceCast({ ...voiceCast, charB: e.target.value })}
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                            >
-                              {VOICE_CATALOG.map((group) => (
-                                <optgroup key={group.group} label={group.group}>
-                                  {group.voices.map((v) => (
-                                    <option key={v.id} value={v.id}>{v.name}</option>
-                                  ))}
-                                </optgroup>
-                              ))}
-                            </select>
+                            <div className="flex items-center gap-1.5">
+                              <select
+                                value={voiceCast.charB}
+                                onChange={(e) => setVoiceCast({ ...voiceCast, charB: e.target.value })}
+                                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                              >
+                                {VOICE_CATALOG.map((group) => (
+                                  <optgroup key={group.group} label={group.group}>
+                                    {group.voices.map((v) => (
+                                      <option key={v.id} value={v.id}>{v.name}</option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => togglePlayVoice(voiceCast.charB)}
+                                className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition flex items-center gap-1 shrink-0 ${
+                                  playingVoiceId === voiceCast.charB
+                                    ? 'bg-red-600 text-white border-red-600 animate-pulse'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                }`}
+                                title="Bấm để nghe thử mẫu giọng này"
+                              >
+                                {playingVoiceId === voiceCast.charB ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-red-500" />}
+                                <span className="text-[10px]">{playingVoiceId === voiceCast.charB ? 'Dừng' : 'Thử'}</span>
+                              </button>
+                            </div>
                           </div>
 
                           {/* Người dẫn chuyện */}
@@ -1276,19 +1333,34 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                               <span>Người dẫn & Quote:</span>
                               <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
-                            <select
-                              value={voiceCast.narrator}
-                              onChange={(e) => setVoiceCast({ ...voiceCast, narrator: e.target.value })}
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
-                            >
-                              {VOICE_CATALOG.map((group) => (
-                                <optgroup key={group.group} label={group.group}>
-                                  {group.voices.map((v) => (
-                                    <option key={v.id} value={v.id}>{v.name}</option>
-                                  ))}
-                                </optgroup>
-                              ))}
-                            </select>
+                            <div className="flex items-center gap-1.5">
+                              <select
+                                value={voiceCast.narrator}
+                                onChange={(e) => setVoiceCast({ ...voiceCast, narrator: e.target.value })}
+                                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                              >
+                                {VOICE_CATALOG.map((group) => (
+                                  <optgroup key={group.group} label={group.group}>
+                                    {group.voices.map((v) => (
+                                      <option key={v.id} value={v.id}>{v.name}</option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => togglePlayVoice(voiceCast.narrator)}
+                                className={`px-2 py-1.5 rounded-lg border text-xs font-bold transition flex items-center gap-1 shrink-0 ${
+                                  playingVoiceId === voiceCast.narrator
+                                    ? 'bg-red-600 text-white border-red-600 animate-pulse'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                }`}
+                                title="Bấm để nghe thử mẫu giọng này"
+                              >
+                                {playingVoiceId === voiceCast.narrator ? <Pause className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-red-500" />}
+                                <span className="text-[10px]">{playingVoiceId === voiceCast.narrator ? 'Dừng' : 'Thử'}</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
 
