@@ -16,9 +16,13 @@ import { renderComicToShortsVideo } from './services/videoGeneratorService.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, '../uploads');
+const assetsDir = path.join(__dirname, '../assets');
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
+}
+if (!fs.existsSync(assetsDir)) {
+  fs.mkdirSync(assetsDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
@@ -34,6 +38,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
+app.use('/assets', express.static(assetsDir));
+
+// Danh sách nhạc nền BGM êm dịu có sẵn cho Shorts
+app.get('/api/youtube/bgm-presets', (req, res) => {
+  const bgmList = [
+    { id: 'nostalgic_piano', name: 'Nostalgic Piano (Hoài niệm & Sâu lắng)', audioUrl: '/assets/bgm/nostalgic_piano.mp3', tag: 'Cảm Xúc' },
+    { id: 'emotional_crescendo', name: 'Emotional Crescendo (Bừng sáng & Cao trào)', audioUrl: '/assets/bgm/emotional_crescendo.mp3', tag: 'Truyền Lửa' },
+    { id: 'warm_acoustic', name: 'Warm Cozy Acoustic (Ấm cúng & Thư giãn)', audioUrl: '/assets/bgm/warm_acoustic.mp3', tag: 'Mộc Mạc' },
+    { id: 'deep_reflection', name: 'Deep Night Reflection (Trầm lắng về đêm)', audioUrl: '/assets/bgm/deep_reflection.mp3', tag: 'Triết Lý' }
+  ];
+  res.json({ success: true, bgmList });
+});
 
 // 1. Quản lý Đa kênh (Multi-Channel Management)
 app.get('/api/channels', (req, res) => {
@@ -447,12 +463,31 @@ app.post('/api/youtube/comic-script', async (req, res) => {
 });
 
 // 5.5 YouTube Shorts: Tự động render Video cuộn dọc MP4 bằng FFmpeg
-app.post('/api/youtube/render-shorts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), async (req, res) => {
+app.post('/api/youtube/render-shorts', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }, { name: 'bgmFile', maxCount: 1 }]), async (req, res) => {
   try {
     const duration = parseInt(req.body.duration, 10) || 35;
     const mode = req.body.mode || 'panels';
+    const audioMode = req.body.audioMode || 'silent'; // 'silent' | 'ai_voice' | 'custom_audio'
+    const bgmPreset = req.body.bgmPreset || 'none';
+    const bgmVolume = parseFloat(req.body.bgmVolume) || 0.20;
+
+    let voiceCast = null;
+    if (req.body.voiceCast) {
+      try {
+        voiceCast = typeof req.body.voiceCast === 'string' ? JSON.parse(req.body.voiceCast) : req.body.voiceCast;
+      } catch {}
+    }
+
+    let panelDialogues = [];
+    if (req.body.panelDialogues) {
+      try {
+        panelDialogues = typeof req.body.panelDialogues === 'string' ? JSON.parse(req.body.panelDialogues) : req.body.panelDialogues;
+      } catch {}
+    }
+
     let imagePath = req.files?.image ? req.files.image[0].path : null;
     let audioPath = req.files?.audio ? req.files.audio[0].path : null;
+    let customBgmPath = req.files?.bgmFile ? req.files.bgmFile[0].path : null;
 
     if (!imagePath && req.body.photoUrl) {
       if (req.body.photoUrl.startsWith('/uploads/')) {
@@ -468,7 +503,13 @@ app.post('/api/youtube/render-shorts', upload.fields([{ name: 'image', maxCount:
       imagePath,
       audioPath,
       duration,
-      mode
+      mode,
+      audioMode,
+      bgmPreset,
+      bgmVolume,
+      customBgmPath,
+      voiceCast,
+      panelDialogues
     });
 
     res.json({ success: true, ...result });

@@ -15,13 +15,18 @@ import {
   Layers,
   Send,
   Play,
+  Pause,
   Volume2,
+  VolumeX,
+  Mic,
+  Sliders,
   ChevronRight,
   Bookmark,
   Share2,
   Film,
   Download,
-  UploadCloud
+  UploadCloud,
+  User
 } from 'lucide-react';
 
 // Thư viện các câu chuyện ngụ ngôn mẫu chuẩn
@@ -136,6 +141,33 @@ const CURATED_FABLES = [
   }
 ];
 
+const BGM_PRESETS = [
+  { id: 'nostalgic_piano', name: 'Nostalgic Piano', desc: 'Hoài niệm, êm đềm & sâu lắng', audioUrl: 'http://localhost:5000/assets/bgm/nostalgic_piano.mp3', tag: 'Cảm Xúc' },
+  { id: 'emotional_crescendo', name: 'Emotional Crescendo', desc: 'Bừng sáng, cao trào (như Experience)', audioUrl: 'http://localhost:5000/assets/bgm/emotional_crescendo.mp3', tag: 'Truyền Lửa' },
+  { id: 'warm_acoustic', name: 'Warm Cozy Acoustic', desc: 'Ấm cúng, mộc mạc & thư giãn', audioUrl: 'http://localhost:5000/assets/bgm/warm_acoustic.mp3', tag: 'Mộc Mạc' },
+  { id: 'deep_reflection', name: 'Deep Night Reflection', desc: 'Trầm lắng, chiêm nghiệm về đêm', audioUrl: 'http://localhost:5000/assets/bgm/deep_reflection.mp3', tag: 'Triết Lý' }
+];
+
+const VOICE_OPTIONS_MALE = [
+  { id: 'en-US-GuyNeural', name: 'Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
+  { id: 'en-US-AndrewNeural', name: 'Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
+  { id: 'en-GB-RyanNeural', name: 'Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
+  { id: 'en-US-BrianNeural', name: 'Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' }
+];
+
+const VOICE_OPTIONS_FEMALE = [
+  { id: 'en-US-AriaNeural', name: 'Aria (Nữ Mỹ - Nhẹ nhàng, sâu sắc)' },
+  { id: 'en-US-AvaNeural', name: 'Ava (Nữ Mỹ - Điềm đạm, ấm áp)' },
+  { id: 'en-GB-SoniaNeural', name: 'Sonia (Nữ Anh - Thanh lịch, tinh tế)' },
+  { id: 'en-US-EmmaNeural', name: 'Emma (Nữ Mỹ - Tươi vui, tự nhiên)' }
+];
+
+const VOICE_OPTIONS_NARRATOR = [
+  { id: 'en-US-ChristopherNeural', name: 'Christopher (Nam Mỹ - Trầm ấm, kinh điển)' },
+  { id: 'en-GB-ThomasNeural', name: 'Thomas (Nam Anh - Đậm chất cổ tích/BBC)' },
+  { id: 'en-US-GuyNeural', name: 'Guy (Nam Mỹ - Giọng kể hiện đại)' }
+];
+
 export default function YouTubeComicStudioTab() {
   const [activeTab, setActiveTab] = useState('generator'); // 'generator' | 'video-maker' | 'library' | 'music-guide'
   const [topicInput, setTopicInput] = useState('');
@@ -150,8 +182,78 @@ export default function YouTubeComicStudioTab() {
   const [videoAudioFile, setVideoAudioFile] = useState(null);
   const [videoDuration, setVideoDuration] = useState(35);
   const [renderMode, setRenderMode] = useState('panels'); // 'panels' | 'scroll'
+  
+  // Audio & Voice States
+  const [audioMode, setAudioMode] = useState('silent'); // 'silent' | 'ai_voice' | 'custom_audio'
+  const [enableBgm, setEnableBgm] = useState(true);
+  const [selectedBgm, setSelectedBgm] = useState('nostalgic_piano');
+  const [bgmVolume, setBgmVolume] = useState(20); // 20%
+  const [voiceCast, setVoiceCast] = useState({
+    charA: 'en-US-GuyNeural',
+    charB: 'en-US-AriaNeural',
+    narrator: 'en-US-ChristopherNeural'
+  });
+  const [playingBgmId, setPlayingBgmId] = useState(null);
+  const audioRef = React.useRef(null);
+
   const [renderingVideo, setRenderingVideo] = useState(false);
   const [renderedResult, setRenderedResult] = useState(null);
+
+  // Play / Pause preview audio for BGM
+  const togglePlayBgm = (bgm) => {
+    if (playingBgmId === bgm.id) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setPlayingBgmId(null);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      const audio = new Audio(bgm.audioUrl);
+      audio.volume = 0.5;
+      audio.onended = () => setPlayingBgmId(null);
+      audio.play().catch(() => {});
+      audioRef.current = audio;
+      setPlayingBgmId(bgm.id);
+    }
+  };
+
+  // Trích xuất danh sách thoại của từng khung hình kèm gán nhân vật tự động
+  const getStoryDialogues = () => {
+    if (!currentStory?.panels) return [];
+    const list = currentStory.panels.map((p, idx) => {
+      let raw = p.dialogue || p.dialogueOrNarration || '';
+      let speaker = 'charA';
+      const low = raw.toLowerCase();
+      if (low.includes('narrator:') || low.includes('caption:')) {
+        speaker = 'narrator';
+      } else if (low.includes('maya:') || low.includes('woman:') || low.includes('girl:') || low.includes('mother:')) {
+        speaker = 'charB';
+      } else if (low.includes('leo:') || low.includes('man:') || low.includes('boy:') || low.includes('neighbor:')) {
+        speaker = 'charA';
+      } else {
+        speaker = idx % 2 === 0 ? 'charA' : 'charB';
+      }
+      const cleanText = raw.replace(/^[^:]+:\s*/, '').replace(/["']/g, '').trim();
+      return {
+        panelNumber: p.panelNumber || (idx + 1),
+        title: p.title || `Panel ${idx + 1}`,
+        speaker,
+        text: cleanText || p.title || 'Scene dialogue'
+      };
+    });
+
+    if (currentStory.bottomPunchline) {
+      list.push({
+        panelNumber: list.length + 1,
+        title: 'Quote Footer',
+        speaker: 'narrator',
+        text: currentStory.bottomPunchline.replace(/["']/g, '').trim()
+      });
+    }
+    return list;
+  };
 
   const handleImageFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -179,11 +281,24 @@ export default function YouTubeComicStudioTab() {
     try {
       const formData = new FormData();
       formData.append('image', videoImageFile);
-      if (videoAudioFile) {
-        formData.append('audio', videoAudioFile);
-      }
       formData.append('duration', videoDuration);
       formData.append('mode', renderMode);
+      formData.append('audioMode', audioMode);
+
+      if (audioMode === 'ai_voice') {
+        formData.append('voiceCast', JSON.stringify(voiceCast));
+        formData.append('panelDialogues', JSON.stringify(getStoryDialogues()));
+        formData.append('bgmPreset', enableBgm ? selectedBgm : 'none');
+        formData.append('bgmVolume', (bgmVolume / 100).toFixed(2));
+      } else if (audioMode === 'custom_audio') {
+        if (videoAudioFile) {
+          formData.append('audio', videoAudioFile);
+        }
+      } else {
+        // Silent video, but user may still want BGM piano music
+        formData.append('bgmPreset', enableBgm ? selectedBgm : 'none');
+        formData.append('bgmVolume', (bgmVolume / 100).toFixed(2));
+      }
 
       const res = await axios.post('/api/youtube/render-shorts', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -907,23 +1022,251 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     </div>
                   </div>
 
-                  {/* Âm thanh tải lên */}
-                  <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <Music className="w-4 h-4 text-blue-500" />
-                      <span>4. Nhạc nền hoặc giọng đọc Voiceover (Tùy chọn):</span>
-                    </label>
+                  {/* 4. Bộ Âm Thanh & Lồng Tiếng Thông Minh */}
+                  <div className="space-y-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <Music className="w-4 h-4 text-blue-500" />
+                        <span>4. Âm thanh & Lồng tiếng (Tùy chọn):</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400">
+                        {audioMode === 'ai_voice' ? '🎙️ Lồng tiếng AI đa nhân vật' : audioMode === 'custom_audio' ? '📁 File riêng' : '🔇 Không tiếng'}
+                      </span>
+                    </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                      <input
-                        type="file"
-                        accept="audio/*"
-                        onChange={handleAudioFileChange}
-                        className="text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
-                      />
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
-                        💡 <b>Mẹo:</b> Nếu bạn để trống, video xuất ra sẽ không có tiếng. Bạn có thể đăng trực tiếp lên <b>YouTube Shorts</b> hoặc <b>TikTok</b> rồi chọn bài nhạc trend <i>"Idea 10 - Gibran Alcocer"</i> ngay trên ứng dụng để được thuật toán ưu tiên phân phối!
-                      </p>
+                    {/* 3 Lựa chọn chế độ âm thanh */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAudioMode('silent')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${
+                          audioMode === 'silent'
+                            ? 'bg-red-500/10 border-red-500 text-red-600 dark:text-red-400 font-bold shadow-xs'
+                            : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                        }`}
+                      >
+                        <VolumeX className="w-4 h-4" />
+                        <span className="text-xs">Không Tiếng</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAudioMode('ai_voice')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 relative ${
+                          audioMode === 'ai_voice'
+                            ? 'bg-red-500/10 border-red-500 text-red-600 dark:text-red-400 font-bold shadow-xs'
+                            : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                        }`}
+                      >
+                        <Mic className="w-4 h-4" />
+                        <span className="text-xs">Lồng Tiếng AI</span>
+                        <span className="absolute -top-1.5 -right-1.5 px-1 py-0.2 rounded-full bg-red-600 text-[8px] text-white font-black uppercase">
+                          Mới
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAudioMode('custom_audio')}
+                        className={`py-2 px-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${
+                          audioMode === 'custom_audio'
+                            ? 'bg-red-500/10 border-red-500 text-red-600 dark:text-red-400 font-bold shadow-xs'
+                            : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                        }`}
+                      >
+                        <UploadCloud className="w-4 h-4" />
+                        <span className="text-xs">Tải File Lên</span>
+                      </button>
+                    </div>
+
+                    {/* NỘI DUNG CHẾ ĐỘ 1: LỒNG TIẾNG AI ĐA NHÂN VẬT */}
+                    {audioMode === 'ai_voice' && (
+                      <div className="space-y-3.5 pt-2 border-t border-slate-200 dark:border-slate-800 animate-fadeIn">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-red-500" />
+                            <span>Phân vai diễn viên lồng tiếng (Tiếng Anh tự nhiên):</span>
+                          </span>
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                            ✓ Khớp 100% từng khung hình
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                          {/* Nhân vật A */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              Nhân vật Nam (Leo):
+                            </label>
+                            <select
+                              value={voiceCast.charA}
+                              onChange={(e) => setVoiceCast({ ...voiceCast, charA: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                            >
+                              {VOICE_OPTIONS_MALE.map(v => (
+                                <option key={v.id} value={v.id}>{v.name}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Nhân vật B */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              Nhân vật Nữ (Maya):
+                            </label>
+                            <select
+                              value={voiceCast.charB}
+                              onChange={(e) => setVoiceCast({ ...voiceCast, charB: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                            >
+                              {VOICE_OPTIONS_FEMALE.map(v => (
+                                <option key={v.id} value={v.id}>{v.name}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Người dẫn chuyện */}
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              Người kể & Quote:
+                            </label>
+                            <select
+                              value={voiceCast.narrator}
+                              onChange={(e) => setVoiceCast({ ...voiceCast, narrator: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
+                            >
+                              {VOICE_OPTIONS_NARRATOR.map(v => (
+                                <option key={v.id} value={v.id}>{v.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {currentStory ? (
+                          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-slate-700 dark:text-slate-300">
+                            💡 <b>Đã đồng bộ lời thoại:</b> Lấy tự động <b>{currentStory.panels?.length || 11} câu thoại</b> từ câu chuyện <i>"{currentStory.title}"</i>. Mỗi nhân vật sẽ đọc đúng câu thoại của mình khi camera zoom đến ô tranh đó.
+                          </div>
+                        ) : (
+                          <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-slate-700 dark:text-slate-300">
+                            💡 Chưa chọn truyện mẫu ở Tab 1. Hệ thống sẽ tự động dùng kịch bản đối thoại triết lý mẫu cho từng ô tranh.
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* NỘI DUNG CHẾ ĐỘ 2: TẢI FILE RIÊNG */}
+                    {audioMode === 'custom_audio' && (
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2 animate-fadeIn">
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          onChange={handleAudioFileChange}
+                          className="text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
+                        />
+                        <p className="text-[11px] text-slate-400 leading-relaxed">
+                          Tải lên file thu âm giọng đọc của bạn hoặc file nhạc MP3 yêu thích.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* NỘI DUNG CHẾ ĐỘ 3: KHÔNG TIẾNG */}
+                    {audioMode === 'silent' && (
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 leading-relaxed animate-fadeIn">
+                        Video xuất ra sẽ không có giọng nói. Nếu bạn tích chọn nhạc nền piano bên dưới, video sẽ có nhạc nền êm ái; hoặc để trống hoàn toàn để tự chèn nhạc trend trên TikTok / Shorts.
+                      </div>
+                    )}
+
+                    {/* PHẦN CHÈN NHẠC NỀN BGM (ÁP DỤNG ĐƯỢC CHO CẢ LỒNG TIẾNG HOẶC KHÔNG TIẾNG) */}
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={enableBgm}
+                            onChange={(e) => setEnableBgm(e.target.checked)}
+                            className="rounded border-slate-300 text-red-600 focus:ring-red-500"
+                          />
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                            <span>🎹 Chèn thêm nhạc nền piano êm dịu (BGM)</span>
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                              Khuyên dùng
+                            </span>
+                          </span>
+                        </label>
+
+                        {enableBgm && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-[11px] text-slate-400">Âm lượng BGM:</span>
+                            <span className="font-bold text-red-500">{bgmVolume}%</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {enableBgm && (
+                        <div className="space-y-3 pl-5 border-l-2 border-red-500/30 animate-fadeIn">
+                          {/* Danh sách 4 bản nhạc piano mẫu có nút nghe thử */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {BGM_PRESETS.map((bgm) => (
+                              <div
+                                key={bgm.id}
+                                onClick={() => setSelectedBgm(bgm.id)}
+                                className={`p-2.5 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
+                                  selectedBgm === bgm.id
+                                    ? 'bg-red-500/10 border-red-500 shadow-xs'
+                                    : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="space-y-0.5 min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                      {bgm.name}
+                                    </span>
+                                    <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
+                                      {bgm.tag}
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-slate-500 truncate">
+                                    {bgm.desc}
+                                  </p>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    togglePlayBgm(bgm);
+                                  }}
+                                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-red-600 hover:text-white text-slate-700 dark:text-slate-300 transition shrink-0"
+                                  title="Nghe thử bài nhạc này"
+                                >
+                                  {playingBgmId === bgm.id ? (
+                                    <Pause className="w-3.5 h-3.5 text-red-600 hover:text-white" />
+                                  ) : (
+                                    <Play className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Thanh chỉnh âm lượng nhạc nền */}
+                          <div className="flex items-center gap-3 pt-1">
+                            <span className="text-[10px] text-slate-400 shrink-0">Độ to nhạc nền:</span>
+                            <input
+                              type="range"
+                              min="10"
+                              max="35"
+                              step="2"
+                              value={bgmVolume}
+                              onChange={(e) => setBgmVolume(Number(e.target.value))}
+                              className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-600"
+                            />
+                            <span className="text-[10px] text-slate-400 shrink-0">
+                              (18-20% là vừa êm, không lấn giọng)
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

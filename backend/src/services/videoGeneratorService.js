@@ -10,8 +10,21 @@ const ffmpegPath = fs.existsSync(ffmpegBinary) ? ffmpegBinary : 'ffmpeg';
 const uploadsDir = path.join(__dirname, '../../uploads');
 const pythonScript = path.join(__dirname, 'video_engine.py');
 
-export function renderComicToShortsVideo({ imagePath, audioPath = null, duration = 35, mode = 'panels' }) {
+export function renderComicToShortsVideo(options = {}) {
   return new Promise((resolve, reject) => {
+    const {
+      imagePath,
+      audioPath = null,
+      duration = 35,
+      mode = 'panels',
+      audioMode = 'silent', // 'silent' | 'ai_voice' | 'custom_audio'
+      bgmPreset = 'none', // 'nostalgic_piano' | 'emotional_crescendo' | 'warm_acoustic' | 'deep_reflection' | 'none'
+      bgmVolume = 0.20,
+      customBgmPath = null,
+      voiceCast = null,
+      panelDialogues = []
+    } = options;
+
     if (!fs.existsSync(imagePath)) {
       return reject(new Error('Không tìm thấy tệp ảnh đầu vào.'));
     }
@@ -19,19 +32,29 @@ export function renderComicToShortsVideo({ imagePath, audioPath = null, duration
     const outputName = `shorts_${Date.now()}.mp4`;
     const outputPath = path.join(uploadsDir, outputName);
 
-    // Call Python video_engine:
-    // python video_engine.py <mode> <imagePath> <audioPath|none> <outputPath> <ffmpegPath> <duration>
-    const pyArgs = [
-      pythonScript,
-      mode || 'panels',
+    const config = {
+      mode: mode || 'panels',
       imagePath,
-      audioPath && fs.existsSync(audioPath) ? audioPath : 'none',
       outputPath,
       ffmpegPath,
-      String(duration)
-    ];
+      duration: parseInt(duration, 10) || 35,
+      audioMode: audioMode || (audioPath ? 'custom_audio' : 'silent'),
+      customAudioPath: audioPath && fs.existsSync(audioPath) ? audioPath : null,
+      bgmPreset: bgmPreset || 'none',
+      bgmVolume: parseFloat(bgmVolume) || 0.20,
+      customBgmPath: customBgmPath && fs.existsSync(customBgmPath) ? customBgmPath : null,
+      voiceCast: voiceCast || {
+        charA: 'en-US-GuyNeural',
+        charB: 'en-US-AriaNeural',
+        narrator: 'en-US-ChristopherNeural'
+      },
+      panelDialogues: Array.isArray(panelDialogues) ? panelDialogues : []
+    };
 
-    const pyProc = spawn('python', pyArgs, {
+    const configPath = path.join(uploadsDir, `config_${Date.now()}_${Math.random().toString(36).substring(7)}.json`);
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+
+    const pyProc = spawn('python', [pythonScript, '--config', configPath], {
       windowsHide: true
     });
 
@@ -47,6 +70,10 @@ export function renderComicToShortsVideo({ imagePath, audioPath = null, duration
     });
 
     pyProc.on('close', (code) => {
+      if (fs.existsSync(configPath)) {
+        try { fs.unlinkSync(configPath); } catch {}
+      }
+
       if (code !== 0 || !fs.existsSync(outputPath)) {
         console.error('Lỗi Python video_engine:', stderrData || stdoutData);
         return reject(new Error(stderrData || stdoutData || 'Lỗi render video từ engine'));
@@ -58,7 +85,7 @@ export function renderComicToShortsVideo({ imagePath, audioPath = null, duration
           success: true,
           filename: outputName,
           videoUrl: `/uploads/${outputName}`,
-          duration,
+          duration: result.totalDuration || duration,
           size: fs.statSync(outputPath).size,
           mode,
           panelsCount: result.panelsCount || null
@@ -76,6 +103,9 @@ export function renderComicToShortsVideo({ imagePath, audioPath = null, duration
     });
 
     pyProc.on('error', (err) => {
+      if (fs.existsSync(configPath)) {
+        try { fs.unlinkSync(configPath); } catch {}
+      }
       reject(new Error('Không thể khởi chạy engine render Python: ' + err.message));
     });
   });
