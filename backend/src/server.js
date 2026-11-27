@@ -11,7 +11,7 @@ dotenv.config();
 
 import { db } from './db.js';
 import { getPageInfo, fetchUserPages, getRecentPosts, publishFacebookPost } from './services/facebookService.js';
-import { generateContentIdeas, generateComicStoryScript } from './services/geminiService.js';
+import { generateContentIdeas, generateComicStoryScript, scanComicImage } from './services/geminiService.js';
 import { NEWS_SOURCES, fetchNewsFeed, scrapeArticleFromUrl, rewriteNewsToSocialPost } from './services/newsService.js';
 import { scrapePagePosts } from './services/facebookSpyService.js';
 import { renderComicToShortsVideo } from './services/videoGeneratorService.js';
@@ -518,6 +518,31 @@ app.post('/api/youtube/render-shorts', upload.fields([{ name: 'image', maxCount:
     res.json({ success: true, ...result });
   } catch (err) {
     console.error('Lỗi render video shorts:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.6 Quét và nhận diện lời thoại trực tiếp từ ảnh truyện tranh bằng AI Vision
+app.post('/api/youtube/scan-comic-image', upload.single('image'), async (req, res) => {
+  try {
+    let imageBuffer = null;
+    let mimeType = 'image/png';
+    if (req.file) {
+      imageBuffer = fs.readFileSync(req.file.path);
+      mimeType = req.file.mimetype || 'image/png';
+    } else if (req.body.imageUrl) {
+      const p = path.join(uploadsDir, path.basename(req.body.imageUrl));
+      if (fs.existsSync(p)) {
+        imageBuffer = fs.readFileSync(p);
+      }
+    }
+    if (!imageBuffer) {
+      return res.status(400).json({ error: 'Chưa có file ảnh để quét lời thoại' });
+    }
+    const scanned = await scanComicImage(imageBuffer, mimeType);
+    res.json({ success: true, story: scanned });
+  } catch (err) {
+    console.error('Lỗi quét ảnh truyện:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

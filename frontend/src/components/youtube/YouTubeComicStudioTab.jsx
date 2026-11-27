@@ -160,6 +160,96 @@ const CURATED_FABLES = [
     vietnamesePunchline: "Bạn không hề chậm trễ. Bạn chỉ đang ở giữa đống mảnh vỡ bài học. Hãy kiên trì tiến lên.",
     imagePrompt: `A full-page vertical comic strip, aspect ratio 9:16, warm storybook illustration style, soft digital painting, cozy aesthetic with gentle golden lighting, reminiscent of modern graphic novels. Sequential panels reading from top to bottom with neat white borders. Top header in bold typography: "THE POTTER'S HANDS". Panels show an old kind master potter with glasses and a young boy in a pottery workshop with piles of broken cracked pots and one glowing perfect bowl. Clear speech bubbles with dialogue. Bottom quote: "You are not behind. You are mid-pile. Keep throwing." Warm fireplace lighting, emotional atmosphere. --ar 9:16 --v 6.1`,
     bgm: "Experience - Ludovico Einaudi (Inspiring Crescendo Piano)"
+  },
+  {
+    id: 'fable_pale_blue_spark',
+    title: "THE PALE BLUE SPARK",
+    vietnameseTitle: "Tia Sáng Xanh Nhạt (Bụi Sao & Tình Yêu)",
+    topic: "Lòng trắc ẩn, buông bỏ lòng tham và tình người giữa vũ trụ bao la",
+    summary: "Hai phi hành gia Orion và Jax trôi dạt ngoài không gian nhìn về Trái Đất. Giữa lằn ranh sinh tử khi bình oxy cạn kiệt, họ nhận ra của cải trần tục chẳng là gì so với lòng trắc ẩn và sự sẻ chia.",
+    panels: [
+      {
+        panelNumber: 1,
+        title: "Trái Đất và biên giới",
+        sceneDescription: "Hai phi hành gia lơ lửng ngoài không gian nhìn về Trái Đất xanh bé nhỏ.",
+        dialogue: "Look at Earth. We killed ourselves fighting for its borders.",
+        vietnameseDialogue: "Nhìn Trái Đất kìa. Chúng ta đã tàn sát lẫn nhau vì những đường biên giới của nó."
+      },
+      {
+        panelNumber: 2,
+        title: "Lòng tham trần tục",
+        sceneDescription: "Jax nhìn vào máy tính bảng chứa các biểu đồ mỏ vàng và quyền lực.",
+        dialogue: "If we survived, I'd grab more gold mines. Power is everything down there.",
+        vietnameseDialogue: "Nếu chúng ta sống sót, tôi sẽ chiếm thêm nhiều mỏ vàng. Dưới đó quyền lực là tất cả."
+      },
+      {
+        panelNumber: 3,
+        title: "Chân lý vũ trụ",
+        sceneDescription: "Orion nhìn Jax với ánh mắt thấu suốt.",
+        dialogue: "Gold cannot buy oxygen here. Greed blinds us to the real universe.",
+        vietnameseDialogue: "Vàng không thể mua được oxy ở đây. Lòng tham làm chúng ta mù quáng trước vũ trụ thực sự."
+      },
+      {
+        panelNumber: 4,
+        title: "Sự giằng xé",
+        sceneDescription: "Jax tức giận nắm chặt chiếc máy tính bảng.",
+        dialogue: "Without wealth, life is meaningless! Everyone fights for themselves!",
+        vietnameseDialogue: "Không có sự giàu có, cuộc sống thật vô nghĩa! Ai cũng đấu tranh cho riêng mình!"
+      },
+      {
+        panelNumber: 5,
+        title: "Tình yêu để lại dấu vết",
+        sceneDescription: "Orion chỉ tay về phía hành tinh xanh xa xôi lấp lánh.",
+        dialogue: "From up here, borders vanish. Only love and kindness leave a trace.",
+        vietnameseDialogue: "Từ trên này, mọi biên giới đều biến mất. Chỉ có tình yêu và lòng tốt mới để lại dấu vết."
+      },
+      {
+        panelNumber: 6,
+        title: "Sự thức tỉnh trong lặng im",
+        sceneDescription: "Jax buông tay, để chiếc máy tính bảng trôi dạt vào không gian sâu thẳm.",
+        dialogue: "Jax stands in absolute silence, watching his earthly obsessions float away forever.",
+        vietnameseDialogue: "Jax đứng trong sự im lặng tuyệt đối, nhìn những nỗi ám ảnh trần tục trôi đi mãi mãi."
+      },
+      {
+        panelNumber: 7,
+        title: "Đồng hồ oxy cạn kiệt",
+        sceneDescription: "Đồng hồ áp suất của Orion an toàn ở vạch xanh, còn đồng hồ của Jax đã chạm vạch đỏ nguy cấp.",
+        dialogue: "Orion's gauge is safe, but Jax's emergency oxygen tank is running completely dry.",
+        vietnameseDialogue: "Đồng hồ của Orion an toàn, nhưng bình oxy dự phòng của Jax đã cạn kiệt hoàn toàn."
+      },
+      {
+        panelNumber: 8,
+        title: "Hành động hy sinh",
+        sceneDescription: "Orion tháo dây van oxy của mình nối sang cho Jax trong sự kinh ngạc của bạn.",
+        dialogue: "What are you doing? You'll die!",
+        vietnameseDialogue: "Cậu đang làm gì thế? Cậu sẽ chết mất!"
+      },
+      {
+        panelNumber: 9,
+        title: "Chúng ta là bụi sao",
+        sceneDescription: "Orion mỉm cười thanh thản và hạnh phúc.",
+        dialogue: "We are stardust. Compassion is the only legacy that truly matters.",
+        vietnameseDialogue: "Chúng ta đều là bụi sao. Lòng trắc ẩn mới là di sản duy nhất thực sự quan trọng."
+      },
+      {
+        panelNumber: 10,
+        title: "Bàn tay nắm chặt",
+        sceneDescription: "Jax rưng rưng nắm chặt bàn tay của Orion, cùng ngắm nhìn Trái Đất.",
+        dialogue: "Jax holds Orion's hand tightly as they gaze peacefully at the blue planet together.",
+        vietnameseDialogue: "Jax nắm chặt tay Orion khi họ cùng nhau bình yên ngắm nhìn hành tinh xanh."
+      },
+      {
+        panelNumber: 11,
+        title: "Tình yêu vượt không gian",
+        sceneDescription: "Hai phi hành gia phát sáng ấm áp giữa bầu trời sao vĩnh cửu.",
+        dialogue: "In the end, love outweighs the entire universe.",
+        vietnameseDialogue: "Cuối cùng, tình yêu lớn hơn cả toàn bộ vũ trụ."
+      }
+    ],
+    bottomPunchline: "In the vastness of space, we finally learn that what we own matters less than who we love.",
+    vietnamesePunchline: "Giữa không gian bao la, cuối cùng chúng ta nhận ra những gì ta sở hữu không quan trọng bằng những người ta yêu thương.",
+    imagePrompt: `A dense 11-panel vertical comic sheet, aspect ratio 9:16, warm storybook illustration style, deep space watercolor palette, cozy celestial golden lighting. Sequential panels showing two astronauts Orion and Jax, looking at Earth, sharing an oxygen tube, and holding hands in peace. Clear speech bubbles. Bottom quote: "In the vastness of space, we finally learn that what we own matters less than who we love." --ar 9:16 --v 6.1`,
+    bgm: "Cornfield Chase - Hans Zimmer (Interstellar OST)"
   }
 ];
 
@@ -205,7 +295,15 @@ export default function YouTubeComicStudioTab() {
   const [topicInput, setTopicInput] = useState('');
   const [storyLanguage, setStoryLanguage] = useState('vi'); // 'vi' (Tiếng Việt) | 'en' (Tiếng Anh)
   const [generating, setGenerating] = useState(false);
-  const [currentStory, setCurrentStory] = useState(null); // Không hiển thị truyện mẫu mặc định để tránh hiểu nhầm
+  const [currentStory, setCurrentStory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('socialhub_last_comic_story');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    // Mặc định chọn THE PALE BLUE SPARK (Orion & Jax)
+    return CURATED_FABLES[2] || CURATED_FABLES[0];
+  });
+  const [isScanningImage, setIsScanningImage] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -469,12 +567,50 @@ export default function YouTubeComicStudioTab() {
     return buildStoryDialogues(currentStory, ttsLanguage);
   };
 
+  // Quét và trích xuất lời thoại trực tiếp từ ảnh bằng AI Vision
+  const handleScanComicImage = async (fileToScan) => {
+    const targetFile = fileToScan || videoImageFile;
+    if (!targetFile) {
+      alert('Vui lòng chọn hoặc tải lên file ảnh trước!');
+      return;
+    }
+    setIsScanningImage(true);
+    setNotification(null);
+    try {
+      const formData = new FormData();
+      formData.append('image', targetFile);
+      const res = await axios.post('/api/youtube/scan-comic-image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data?.success && res.data.story) {
+        const scanned = res.data.story;
+        setCurrentStory(scanned);
+        try {
+          localStorage.setItem('socialhub_last_comic_story', JSON.stringify(scanned));
+        } catch {}
+        const list = buildStoryDialogues(scanned, ttsLanguage);
+        setEditableDialogues(list);
+        setNotification({
+          type: 'success',
+          message: `✨ AI đã đọc chính xác 100% câu chuyện từ ảnh: "${scanned.title}" (${list.length} khung thoại)! Giọng đọc giờ đây khớp từng từ từng chữ.`
+        });
+      }
+    } catch (err) {
+      console.error('Lỗi scan ảnh:', err);
+      alert('Lỗi quét ảnh: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setIsScanningImage(false);
+    }
+  };
+
   const handleImageFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setVideoImageFile(file);
       setVideoImagePreview(URL.createObjectURL(file));
       setRenderedResult(null);
+      // Tự động quét luôn kịch bản từ ảnh mới tải lên
+      handleScanComicImage(file);
     }
   };
 
@@ -1233,19 +1369,41 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="mt-3 flex items-center justify-between w-full text-xs">
-                        <span className="text-slate-300 font-mono truncate max-w-[200px]">
-                          {videoImageFile?.name}
-                        </span>
-                        <label className="cursor-pointer text-red-400 hover:text-red-300 font-bold underline">
-                          Chọn ảnh khác
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageFileChange}
-                            className="hidden"
-                          />
-                        </label>
+                      <div className="mt-3 flex flex-col gap-2.5 w-full text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-300 font-mono truncate max-w-[180px]">
+                            {videoImageFile?.name}
+                          </span>
+                          <label className="cursor-pointer text-red-400 hover:text-red-300 font-bold underline">
+                            Chọn ảnh khác
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageFileChange}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+
+                        {/* NÚT AI QUÉT LỜI THOẠI TRỰC TIẾP TỪ ẢNH */}
+                        <button
+                          type="button"
+                          onClick={() => handleScanComicImage()}
+                          disabled={isScanningImage || !videoImageFile}
+                          className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-black text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40 disabled:opacity-50"
+                        >
+                          {isScanningImage ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
+                              <span>AI đang đọc bóng thoại trong ảnh... (2-3s)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                              <span>✨ AI Quét Lời Thoại Từ Ảnh (Khớp 100%)</span>
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   )}
@@ -1254,6 +1412,51 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                 {/* Cột 2: Cài đặt thời lượng & Nhạc nền */}
                 <div className="space-y-5 flex flex-col justify-between">
                   
+                  {/* BỘ CHỌN KỊCH BẢN TRUYỆN CHO VIDEO NÀY */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <BookOpen className="w-4 h-4 text-amber-500" />
+                        <span>Kịch bản câu chuyện đang gắn với video:</span>
+                      </label>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 truncate max-w-[140px]">
+                        {currentStory?.vietnameseTitle || currentStory?.title || 'Chưa chọn'}
+                      </span>
+                    </div>
+
+                    <select
+                      value={currentStory?.id || currentStory?.title || 'fable_pale_blue_spark'}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const found = CURATED_FABLES.find(f => f.id === val);
+                        if (found) {
+                          setCurrentStory(found);
+                          setEditableDialogues(buildStoryDialogues(found, ttsLanguage));
+                        }
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >
+                      <optgroup label="🚀 KHO TRUYỆN MẪU CHUẨN">
+                        {CURATED_FABLES.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.id === 'fable_pale_blue_spark' ? '🚀' : f.id === 'fable_apple_tree' ? '🍏' : '🏺'} {f.title} ({f.vietnameseTitle})
+                          </option>
+                        ))}
+                      </optgroup>
+                      {currentStory && !CURATED_FABLES.some(f => f.id === currentStory.id) && (
+                        <optgroup label="✨ KỊCH BẢN HIỆN TẠI (Vừa quét từ ảnh hoặc AI sinh)">
+                          <option value={currentStory.title || 'custom'}>
+                            ✨ {currentStory.title || currentStory.vietnameseTitle || 'Kịch bản riêng'}
+                          </option>
+                        </optgroup>
+                      )}
+                    </select>
+
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                      💡 Hãy chọn đúng câu chuyện của tranh bạn tải lên, hoặc bấm nút <b>"AI Quét Lời Thoại Từ Ảnh"</b> để tự động nhận diện 100%!
+                    </p>
+                  </div>
+
                   {/* Chế độ Render */}
                   <div className="space-y-2">
                     <label className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">

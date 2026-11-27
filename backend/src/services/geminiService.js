@@ -266,3 +266,57 @@ Yêu cầu xuất ra định dạng JSON DUY NHẤT:
   const errMsg = lastError?.response?.data?.error?.message || lastError?.message || 'Không thể kết nối máy chủ Google AI';
   throw new Error(`Google AI đang bị nghẽn (${errMsg}). Bạn hãy bấm nút màu vàng "📋 Lấy Prompt Sang Web Chat" để dán vào ChatGPT nhé!`);
 }
+
+export async function scanComicImage(imageBuffer, mimeType = 'image/png') {
+  const settings = db.getSettings();
+  const apiKey = settings.geminiApiKey || process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('Chưa cấu hình Gemini API Key trong hệ thống.');
+  }
+
+  const base64Data = imageBuffer.toString('base64');
+  const prompt = `Look at this vertical comic sheet.
+Extract the comic title, and for each panel in sequence from top to bottom (panels 1 to 11 and quote footer):
+Extract the speaker and dialogue text in original language, and provide a natural, emotional Vietnamese translation.
+Return JSON ONLY (no markdown fences, just pure JSON):
+{
+  "title": "Comic title in original language",
+  "vietnameseTitle": "Tiêu đề tiếng Việt",
+  "panels": [
+    {
+      "panelNumber": 1,
+      "speaker": "charA or charB or narrator",
+      "speakerName": "Character name",
+      "dialogue": "Original dialogue text without speaker prefix",
+      "vietnameseDialogue": "Vietnamese translation"
+    }
+  ],
+  "bottomPunchline": "quote at footer in original language",
+  "vietnamesePunchline": "Vietnamese translation of quote"
+}`;
+
+  const res = await axios.post(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
+    {
+      contents: [{
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType, data: base64Data } }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.2,
+        responseMimeType: 'application/json'
+      }
+    },
+    { timeout: 35000 }
+  );
+
+  const text = res.data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Không nhận được phản hồi từ AI Vision');
+  const parsed = cleanAndParseJson(text);
+  if (!parsed || !parsed.panels) throw new Error('Không thể phân tích lời thoại từ ảnh');
+  return parsed;
+}
+
