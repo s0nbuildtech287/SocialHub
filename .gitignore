@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+*/dist/
+build/
+*/build/
+
+# Environment files & Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Local Data Storage
+backend/data/*.json
+!backend/data/.gitkeep
+
+# Uploads & temporary generated media
+backend/uploads/*
+!backend/uploads/.gitkeep
+temp/
+tmp/
+*.tmp
+
+# Large binary executables
+backend/bin/*.exe
+*.exe
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
