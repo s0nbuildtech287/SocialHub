@@ -81,8 +81,18 @@ def get_audio_duration(file_path, ffmpeg_exe):
     return 3.0
 
 async def generate_tts_clip(text, voice, out_path, rate='-2%'):
-    comm = edge_tts.Communicate(text, voice, rate=rate)
-    await comm.save(out_path)
+    for attempt in range(3):
+        try:
+            comm = edge_tts.Communicate(text, voice, rate=rate)
+            await comm.save(out_path)
+            if os.path.exists(out_path) and os.path.getsize(out_path) > 300:
+                return True
+        except Exception as e:
+            if attempt < 2:
+                await asyncio.sleep(0.4)
+            else:
+                print(f"Warning: TTS failed for '{text[:25]}' ({voice}): {e}", file=sys.stderr)
+    return False
 
 def render_sync_video(config):
     image_path = config['imagePath']
@@ -133,7 +143,43 @@ def render_sync_video(config):
 
     try:
         # 1. PROCESS AUDIO
-        if audio_mode == 'ai_voice' and edge_tts is not None and len(panel_dialogues) > 0:
+        if audio_mode == 'ai_voice' and edge_tts is not None:
+            # If panel_dialogues is empty or smaller than scenes, auto-fallback to meaningful dialogue
+            if not panel_dialogues or len(panel_dialogues) == 0:
+                is_vi = any('vi-VN' in str(v) for v in voice_cast.values())
+                if is_vi:
+                    default_texts = [
+                        ("charA", "Này bạn, bạn đang vội vã đi tìm điều gì thế?"),
+                        ("charB", "Tôi tìm thành công, tôi sợ mình sẽ bỏ lỡ cơ hội."),
+                        ("charA", "Cây sồi trăm năm cần thời gian bén rễ sâu trong lòng đất."),
+                        ("charB", "Nhưng ngoài kia ai cũng đang chạy rất nhanh."),
+                        ("charA", "Chạy nhanh mà lạc hướng thì đích đến chỉ là sự mệt mỏi."),
+                        ("charB", ""),
+                        ("charA", "Năm tháng đi qua sẽ chứng minh giá trị của sự kiên định."),
+                        ("charB", "Tôi bắt đầu hiểu ra bài học của sự tĩnh lặng."),
+                        ("charA", "Mỗi ngày tích lũy một chút chính là con đường vững chắc nhất."),
+                        ("charB", "Cảm ơn bạn, tôi sẽ kiên nhẫn bước tiếp con đường của mình."),
+                        ("narrator", "Bình an trong tâm chính là khởi đầu của mọi kỳ tích.")
+                    ]
+                else:
+                    default_texts = [
+                        ("charA", "Where are you rushing in such a hurry, young friend?"),
+                        ("charB", "I am looking for quick success before time runs out."),
+                        ("charA", "A great oak takes decades to quietly root deep into the earth."),
+                        ("charB", "But everyone around me seems to be moving so fast."),
+                        ("charA", "Moving fast in the wrong direction only leads to exhaustion."),
+                        ("charB", ""),
+                        ("charA", "Quiet persistence always outlasts fleeting hype."),
+                        ("charB", "I think I finally understand the true value of patience."),
+                        ("charA", "Small steady steps each day build an unshakable future."),
+                        ("charB", "Thank you, I will walk with peace and determination."),
+                        ("narrator", "True strength begins with stillness of the mind.")
+                    ]
+                panel_dialogues = [
+                    {"speaker": default_texts[i % len(default_texts)][0], "text": default_texts[i % len(default_texts)][1]}
+                    for i in range(total_scenes)
+                ]
+
             # Generate per-scene TTS audio
             scene_durations = []
             audio_files = []
@@ -160,7 +206,10 @@ def render_sync_video(config):
                     rate = '-2%'
                     if speaker == 'charB' and voice_cast.get('charA') == voice_cast.get('charB'):
                         rate = '+6%'
-                    asyncio.run(generate_tts_clip(text, voice, clip_p, rate=rate))
+                    ok = asyncio.run(generate_tts_clip(text, voice, clip_p, rate=rate))
+                    if not ok or not os.path.exists(clip_p) or os.path.getsize(clip_p) < 100:
+                        cmd_silence = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', '2.5', '-c:a', 'libmp3lame', clip_p]
+                        subprocess.run(cmd_silence, check=True, stderr=subprocess.DEVNULL)
 
                 dur_clip = get_audio_duration(clip_p, ffmpeg_exe)
                 scene_durations.append(dur_clip)

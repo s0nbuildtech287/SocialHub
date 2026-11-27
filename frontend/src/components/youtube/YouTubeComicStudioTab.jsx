@@ -195,7 +195,7 @@ export default function YouTubeComicStudioTab() {
   const [renderMode, setRenderMode] = useState('panels'); // 'panels' | 'scroll'
   
   // Audio & Voice States
-  const [audioMode, setAudioMode] = useState('silent'); // 'silent' | 'ai_voice' | 'custom_audio'
+  const [audioMode, setAudioMode] = useState('ai_voice'); // 'ai_voice' | 'silent' | 'custom_audio'
   const [enableBgm, setEnableBgm] = useState(true);
   const [bgmSourceType, setBgmSourceType] = useState('preset'); // 'preset' | 'upload'
   const [customBgmFile, setCustomBgmFile] = useState(null);
@@ -261,8 +261,40 @@ export default function YouTubeComicStudioTab() {
 
   // Trích xuất danh sách thoại của từng khung hình kèm gán nhân vật tự động
   const getStoryDialogues = () => {
-    if (!currentStory?.panels) return [];
-    const list = currentStory.panels.map((p, idx) => {
+    let panels = currentStory?.panels;
+    if (!panels || panels.length === 0) {
+      const isVi = storyLanguage === 'vi' || (voiceCast?.charA && voiceCast.charA.includes('vi-VN'));
+      if (isVi) {
+        return [
+          { panelNumber: 1, title: 'Bắt đầu', speaker: 'charA', text: 'Này bạn, bạn đang vội vã đi tìm điều gì thế?' },
+          { panelNumber: 2, title: 'Nghi vấn', speaker: 'charB', text: 'Tôi tìm thành công, tôi sợ mình sẽ bỏ lỡ cơ hội.' },
+          { panelNumber: 3, title: 'Đối thoại', speaker: 'charA', text: 'Cây sồi trăm năm cần thời gian bén rễ sâu trong lòng đất.' },
+          { panelNumber: 4, title: 'Phản biện', speaker: 'charB', text: 'Nhưng ngoài kia ai cũng đang chạy rất nhanh.' },
+          { panelNumber: 5, title: 'Trí tuệ', speaker: 'charA', text: 'Chạy nhanh mà lạc hướng thì đích đến chỉ là sự mệt mỏi.' },
+          { panelNumber: 6, title: 'Lặng im', speaker: 'charB', text: '' },
+          { panelNumber: 7, title: 'Năm 1', speaker: 'charA', text: 'Năm tháng đi qua sẽ chứng minh giá trị của sự kiên định.' },
+          { panelNumber: 8, title: 'Năm 5', speaker: 'charB', text: 'Tôi bắt đầu hiểu ra bài học của sự tĩnh lặng.' },
+          { panelNumber: 9, title: 'Năm 10', speaker: 'charA', text: 'Mỗi ngày tích lũy một chút chính là con đường vững chắc nhất.' },
+          { panelNumber: 10, title: 'Bình yên', speaker: 'charB', text: 'Cảm ơn bạn, tôi sẽ kiên nhẫn bước tiếp con đường của mình.' },
+          { panelNumber: 11, title: 'Quote', speaker: 'narrator', text: 'Bình an trong tâm chính là khởi đầu của mọi kỳ tích.' }
+        ];
+      } else {
+        return [
+          { panelNumber: 1, title: 'Start', speaker: 'charA', text: 'Where are you rushing in such a hurry, young friend?' },
+          { panelNumber: 2, title: 'Question', speaker: 'charB', text: 'I am looking for quick success before time runs out.' },
+          { panelNumber: 3, title: 'Wisdom', speaker: 'charA', text: 'A great oak takes decades to quietly root deep into the earth.' },
+          { panelNumber: 4, title: 'Debate', speaker: 'charB', text: 'But everyone around me seems to be moving so fast.' },
+          { panelNumber: 5, title: 'Truth', speaker: 'charA', text: 'Moving fast in the wrong direction only leads to exhaustion.' },
+          { panelNumber: 6, title: 'Silence', speaker: 'charB', text: '' },
+          { panelNumber: 7, title: 'Year 1', speaker: 'charA', text: 'Quiet persistence always outlasts fleeting hype.' },
+          { panelNumber: 8, title: 'Year 5', speaker: 'charB', text: 'I think I finally understand the true value of patience.' },
+          { panelNumber: 9, title: 'Year 10', speaker: 'charA', text: 'Small steady steps each day build an unshakable future.' },
+          { panelNumber: 10, title: 'Peace', speaker: 'charB', text: 'Thank you, I will walk with peace and determination.' },
+          { panelNumber: 11, title: 'Quote', speaker: 'narrator', text: 'True strength begins with stillness of the mind.' }
+        ];
+      }
+    }
+    const list = panels.map((p, idx) => {
       let raw = p.dialogue || p.dialogueOrNarration || '';
       let speaker = 'charA';
       const low = raw.toLowerCase();
