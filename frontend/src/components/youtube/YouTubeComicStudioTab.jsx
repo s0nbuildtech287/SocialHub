@@ -26,7 +26,13 @@ import {
   Film,
   Download,
   UploadCloud,
-  User
+  User,
+  Globe,
+  AlertTriangle,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp,
+  Edit3
 } from 'lucide-react';
 
 // Thư viện các câu chuyện ngụ ngôn mẫu chuẩn
@@ -42,46 +48,54 @@ const CURATED_FABLES = [
         panelNumber: 1,
         title: "Bà cụ gieo mầm",
         sceneDescription: "Một cụ bà 80 tuổi tóc bạc, đeo kính, mặc áo len tím đang cặm cụi vun đất trồng một cây táo non trong khu vườn nhà.",
-        dialogue: "A woman of eighty was planting an apple tree in her garden."
+        dialogue: "A woman of eighty was planting an apple tree in her garden.",
+        vietnameseDialogue: "Một bà cụ tám mươi tuổi đang cặm cụi trồng một cây táo non trong vườn."
       },
       {
         panelNumber: 2,
         title: "Lời hoài nghi của người hàng xóm",
         sceneDescription: "Người hàng xóm trung niên đội mũ beret đứng khoanh tay nhìn với vẻ thắc mắc.",
-        dialogue: "Neighbor: 'Apple trees take ten years to bear fruit. Why bother?'"
+        dialogue: "Neighbor: 'Apple trees take ten years to bear fruit. Why bother?'",
+        vietnameseDialogue: "Người hàng xóm: 'Cây táo mất mười năm mới có quả. Bà trồng làm chi cho nhọc sức?'"
       },
       {
         panelNumber: 3,
         title: "Câu trả lời bình thản",
         sceneDescription: "Bà cụ mỉm cười hiền từ, người hàng xóm tiếp tục hỏi xoáy vào sự hữu hạn của đời người.",
-        dialogue: "Woman: 'I know.'\nNeighbor: 'But you won't live to taste a single apple.'"
+        dialogue: "Woman: 'I know.'\nNeighbor: 'But you won't live to taste a single apple.'",
+        vietnameseDialogue: "Bà cụ: 'Tôi biết chứ.'\nNgười hàng xóm: 'Nhưng bà đâu thể sống đến ngày nếm quả táo nào.'"
       },
       {
         panelNumber: 4,
         title: "Cú lật ngược tư duy (The Wisdom)",
         sceneDescription: "Bà cụ chống tay lên hông, tươi cười chỉ vào giỏ táo ngọt bên cạnh. Người hàng xóm đứng lặng người suy nghĩ.",
-        dialogue: "Woman: 'I'm eating apples right now—from a tree my grandfather planted. Someone had to go first.'\nThe neighbor stood in silence."
+        dialogue: "Woman: 'I'm eating apples right now—from a tree my grandfather planted. Someone had to go first.'\nThe neighbor stood in silence.",
+        vietnameseDialogue: "Bà cụ: 'Hiện giờ tôi đang ăn táo từ cây ông nội tôi đã trồng. Phải có ai đó đi trước chứ.'\nNgười hàng xóm đứng lặng người suy nghĩ."
       },
       {
         panelNumber: 5,
         title: "Dòng thời gian (Year 1, 5, 10)",
         sceneDescription: "3 khung nhỏ thể hiện dòng chảy thời gian: Năm thứ 1 cây non bé xíu -> Năm thứ 5 cây cao lớn -> Năm thứ 10 cây trĩu quả đỏ rực rỡ.",
-        dialogue: "YEAR 1  •  YEAR 5  •  YEAR 10"
+        dialogue: "YEAR 1  •  YEAR 5  •  YEAR 10",
+        vietnameseDialogue: "Năm thứ nhất... Năm thứ năm... Và năm thứ mười."
       },
       {
         panelNumber: 6,
         title: "Lũ trẻ thưởng thức trái ngọt",
         sceneDescription: "Một nhóm trẻ em thơ ngây đang vui vẻ ăn những quả táo chín mọng, thơm lừng.",
-        dialogue: "No act of goodness is wasted just because you won't see its end."
+        dialogue: "No act of goodness is wasted just because you won't see its end.",
+        vietnameseDialogue: "Không một sự tử tế nào là vô ích, chỉ vì bạn chẳng thể tận mắt nhìn thấy hồi kết."
       },
       {
         panelNumber: 7,
         title: "Hoàng hôn và sự cống hiến",
         sceneDescription: "Bà cụ đứng nhìn về phía hoàng hôn vàng ấm áp, bình yên và thanh thản.",
-        dialogue: "Most of us only plant what we expect to harvest ourselves. But the most meaningful things in life—the ones that outlast us—are always planted by someone who never asked to be thanked."
+        dialogue: "Most of us only plant what we expect to harvest ourselves. But the most meaningful things in life—the ones that outlast us—are always planted by someone who never asked to be thanked.",
+        vietnameseDialogue: "Phần lớn chúng ta chỉ gieo trồng những gì mình mong thu hoạch. Nhưng những điều ý nghĩa nhất cuộc đời, luôn được gieo bởi người không cầu mong được cảm ơn."
       }
     ],
     bottomPunchline: "You don't have to see the end to make a beginning worth something. Someone will eat the fruit you plant today.",
+    vietnamesePunchline: "Bạn không cần thấy hồi kết để khởi đầu có ý nghĩa. Rồi sẽ có người được ăn quả ngọt mà bạn gieo ngày hôm nay.",
     imagePrompt: `A full-page vertical comic strip, aspect ratio 9:16, warm storybook illustration style, soft digital painting, cozy aesthetic with gentle golden lighting, wholesome European graphic novel style. Arranged in sequential panels from top to bottom with neat white borders. Top header in bold friendly typography: "THE OLD WOMAN AND THE APPLE TREE". Panels show a kind 80-year-old grandmother planting an apple tree, talking to a skeptical neighbor, a time-lapse of the growing apple tree (Year 1, Year 5, Year 10), joyful children eating apples, and a golden sunset view. Clear speech bubbles with readable dialogue. Bottom section features an inspirational quote with a small sprouting seedling illustration: "You don't have to see the end to make a beginning worth something. Someone will eat the fruit you plant today." Masterpiece storytelling art. --ar 9:16 --v 6.1`,
     bgm: "Idea 10 - Gibran Alcocer (Emotional Nostalgic Piano)"
   },
@@ -96,46 +110,54 @@ const CURATED_FABLES = [
         panelNumber: 1,
         title: "Cậu học trò tìm đến người thầy",
         sceneDescription: "Một cậu bé học việc bước vào xưởng gốm ấm áp, hỏi người nghệ nhân già râu bạc với ánh mắt ngưỡng mộ.",
-        dialogue: "This is a story about a man who failed 1,000 times.\nA young student once visited a master potter and asked: 'How did you become so skilled?'"
+        dialogue: "This is a story about a man who failed 1,000 times.\nA young student once visited a master potter and asked: 'How did you become so skilled?'",
+        vietnameseDialogue: "Cậu học trò tìm đến người thợ gốm già và hỏi: 'Thưa thầy, làm sao thầy đạt được tay nghề giỏi như vậy?'"
       },
       {
         panelNumber: 2,
         title: "Góc tối của những thất bại",
         sceneDescription: "Người thầy chỉ vào góc xưởng chất đầy những bình gốm nứt, mẻ, biến dạng.",
-        dialogue: "The old man pointed to a corner of the workshop—piled high with broken, cracked, uneven pots.\nStudent: 'But those are all failures.'"
+        dialogue: "The old man pointed to a corner of the workshop—piled high with broken, cracked, uneven pots.\nStudent: 'But those are all failures.'",
+        vietnameseDialogue: "Người thợ già chỉ vào góc xưởng chất đầy những bình gốm vỡ vụn.\nCậu bé: 'Nhưng đó toàn là đồ hỏng mà thầy.'"
       },
       {
         panelNumber: 3,
         title: "Đó là những bài học",
         sceneDescription: "Người thợ già mỉm cười đôn hậu.",
-        dialogue: "'No,' the potter smiled. 'Those are all lessons.'"
+        dialogue: "'No,' the potter smiled. 'Those are all lessons.'",
+        vietnameseDialogue: "'Không,' người thợ gốm mỉm cười. 'Đó toàn là những bài học đấy con ạ.'"
       },
       {
         panelNumber: 4,
         title: "Bản chất của kỹ năng",
         sceneDescription: "Ông giơ lên chiếc bát gốm tròn trịa, láng mịn không một tì vết.",
-        dialogue: "'The hands that made those pots are the same hands that made this one.'"
+        dialogue: "'The hands that made those pots are the same hands that made this one.'",
+        vietnameseDialogue: "'Đôi bàn tay làm hỏng những chiếc bình kia, cũng chính là đôi bàn tay làm nên chiếc bát này.'"
       },
       {
         panelNumber: 5,
         title: "Hơi ấm từ lò nung",
         sceneDescription: "Ông trao chiếc bát vào tay cậu bé, khói ấm bốc lên nhẹ nhàng.",
-        dialogue: "He placed a perfect bowl in the student's hands. Still warm from the kiln."
+        dialogue: "He placed a perfect bowl in the student's hands. Still warm from the kiln.",
+        vietnameseDialogue: "Ông đặt chiếc bát gốm hoàn hảo còn ấm hơi lửa vào tay cậu học trò."
       },
       {
         panelNumber: 6,
         title: "Mặt sau của thành công",
         sceneDescription: "Khung đối lập: Chiếc bát hoàn hảo được trưng bày đối lập với đống vỡ vụn bị giấu kín.",
-        dialogue: "We celebrate the perfect bowl. We hide the broken ones. But the broken ones are the whole story."
+        dialogue: "We celebrate the perfect bowl. We hide the broken ones. But the broken ones are the whole story.",
+        vietnameseDialogue: "Người đời thường ngợi ca chiếc bát hoàn hảo và giấu đi những mảnh vỡ. Nhưng mảnh vỡ mới là toàn bộ câu chuyện."
       },
       {
         panelNumber: 7,
         title: "Đúc kết cho người đang nỗ lực",
         sceneDescription: "Cậu bé ngồi trước đống đất sét, ánh lửa lò nung chiếu rọi gương mặt đầy quyết tâm.",
-        dialogue: "Every skill you admire in someone else was built on a pile of quiet failures they never showed you."
+        dialogue: "Every skill you admire in someone else was built on a pile of quiet failures they never showed you.",
+        vietnameseDialogue: "Mọi kỹ năng phi thường bạn ngưỡng mộ ở người khác đều được dựng xây từ hàng nghìn thất bại thầm lặng."
       }
     ],
     bottomPunchline: "You are not behind. You are mid-pile. Keep throwing.",
+    vietnamesePunchline: "Bạn không hề chậm trễ. Bạn chỉ đang ở giữa đống mảnh vỡ bài học. Hãy kiên trì tiến lên.",
     imagePrompt: `A full-page vertical comic strip, aspect ratio 9:16, warm storybook illustration style, soft digital painting, cozy aesthetic with gentle golden lighting, reminiscent of modern graphic novels. Sequential panels reading from top to bottom with neat white borders. Top header in bold typography: "THE POTTER'S HANDS". Panels show an old kind master potter with glasses and a young boy in a pottery workshop with piles of broken cracked pots and one glowing perfect bowl. Clear speech bubbles with dialogue. Bottom quote: "You are not behind. You are mid-pile. Keep throwing." Warm fireplace lighting, emotional atmosphere. --ar 9:16 --v 6.1`,
     bgm: "Experience - Ludovico Einaudi (Inspiring Crescendo Piano)"
   }
@@ -201,6 +223,9 @@ export default function YouTubeComicStudioTab() {
   const [customBgmFile, setCustomBgmFile] = useState(null);
   const [selectedBgm, setSelectedBgm] = useState('nostalgic_piano');
   const [bgmVolume, setBgmVolume] = useState(20); // 20%
+  const [ttsLanguage, setTtsLanguage] = useState('vi'); // 'vi' | 'en'
+  const [editableDialogues, setEditableDialogues] = useState([]);
+  const [isDialogueListOpen, setIsDialogueListOpen] = useState(false);
   const [voiceCast, setVoiceCast] = useState({
     charA: 'vi-VN-NamMinhNeural',
     charB: 'vi-VN-HoaiMyNeural',
@@ -210,6 +235,183 @@ export default function YouTubeComicStudioTab() {
   const audioRef = React.useRef(null);
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const voiceAudioRef = React.useRef(null);
+
+  // Hàm sinh danh sách lời thoại chuẩn theo ngôn ngữ được chọn
+  const buildStoryDialogues = (story, lang = 'vi') => {
+    let panels = story?.panels;
+    const isVi = lang === 'vi';
+    if (!panels || panels.length === 0) {
+      if (isVi) {
+        return [
+          { panelNumber: 1, title: 'Bắt đầu', speaker: 'charA', text: 'Này bạn, bạn đang vội vã đi tìm điều gì thế?' },
+          { panelNumber: 2, title: 'Nghi vấn', speaker: 'charB', text: 'Tôi tìm thành công, tôi sợ mình sẽ bỏ lỡ cơ hội.' },
+          { panelNumber: 3, title: 'Đối thoại', speaker: 'charA', text: 'Cây sồi trăm năm cần thời gian bén rễ sâu trong lòng đất.' },
+          { panelNumber: 4, title: 'Phản biện', speaker: 'charB', text: 'Nhưng ngoài kia ai cũng đang chạy rất nhanh.' },
+          { panelNumber: 5, title: 'Trí tuệ', speaker: 'charA', text: 'Chạy nhanh mà lạc hướng thì đích đến chỉ là sự mệt mỏi.' },
+          { panelNumber: 6, title: 'Lặng im', speaker: 'charB', text: '' },
+          { panelNumber: 7, title: 'Năm 1', speaker: 'charA', text: 'Năm tháng đi qua sẽ chứng minh giá trị của sự kiên định.' },
+          { panelNumber: 8, title: 'Năm 5', speaker: 'charB', text: 'Tôi bắt đầu hiểu ra bài học của sự tĩnh lặng.' },
+          { panelNumber: 9, title: 'Năm 10', speaker: 'charA', text: 'Mỗi ngày tích lũy một chút chính là con đường vững chắc nhất.' },
+          { panelNumber: 10, title: 'Bình yên', speaker: 'charB', text: 'Cảm ơn bạn, tôi sẽ kiên nhẫn bước tiếp con đường của mình.' },
+          { panelNumber: 11, title: 'Quote Chốt Hạ', speaker: 'narrator', text: 'Bình an trong tâm chính là khởi đầu của mọi kỳ tích.' }
+        ];
+      } else {
+        return [
+          { panelNumber: 1, title: 'Start', speaker: 'charA', text: 'Where are you rushing in such a hurry, young friend?' },
+          { panelNumber: 2, title: 'Question', speaker: 'charB', text: 'I am looking for quick success before time runs out.' },
+          { panelNumber: 3, title: 'Wisdom', speaker: 'charA', text: 'A great oak takes decades to quietly root deep into the earth.' },
+          { panelNumber: 4, title: 'Debate', speaker: 'charB', text: 'But everyone around me seems to be moving so fast.' },
+          { panelNumber: 5, title: 'Truth', speaker: 'charA', text: 'Moving fast in the wrong direction only leads to exhaustion.' },
+          { panelNumber: 6, title: 'Silence', speaker: 'charB', text: '' },
+          { panelNumber: 7, title: 'Year 1', speaker: 'charA', text: 'Quiet persistence always outlasts fleeting hype.' },
+          { panelNumber: 8, title: 'Year 5', speaker: 'charB', text: 'I think I finally understand the true value of patience.' },
+          { panelNumber: 9, title: 'Year 10', speaker: 'charA', text: 'Small steady steps each day build an unshakable future.' },
+          { panelNumber: 10, title: 'Peace', speaker: 'charB', text: 'Thank you, I will walk with peace and determination.' },
+          { panelNumber: 11, title: 'Quote Footer', speaker: 'narrator', text: 'True strength begins with stillness of the mind.' }
+        ];
+      }
+    }
+
+    const list = panels.map((p, idx) => {
+      let raw = '';
+      if (isVi) {
+        raw = p.vietnameseDialogue || (story.language === 'vi' ? (p.dialogue || p.dialogueOrNarration) : '') || p.vietnameseDialogue || p.dialogue || p.dialogueOrNarration || '';
+      } else {
+        raw = p.englishDialogue || (story.language === 'en' ? (p.dialogue || p.dialogueOrNarration) : '') || p.dialogue || p.dialogueOrNarration || '';
+      }
+
+      let speaker = 'charA';
+      const low = (raw || '').toLowerCase();
+      if (
+        low.includes('narrator:') || low.includes('caption:') ||
+        low.includes('dẫn chuyện:') || low.includes('người kể:') || low.includes('chú thích:')
+      ) {
+        speaker = 'narrator';
+      } else if (
+        low.includes('maya:') || low.includes('woman:') || low.includes('girl:') || low.includes('mother:') ||
+        low.includes('bà lão:') || low.includes('bà cụ:') || low.includes('cô bé:') || low.includes('cô gái:') || low.includes('người mẹ:') ||
+        low.includes('nữ:') || low.includes('chị:') || low.includes('em gái:')
+      ) {
+        speaker = 'charB';
+      } else if (
+        low.includes('leo:') || low.includes('man:') || low.includes('boy:') || low.includes('neighbor:') ||
+        low.includes('ông lão:') || low.includes('cậu bé:') || low.includes('chàng trai:') || low.includes('người thợ:') ||
+        low.includes('người cha:') || low.includes('người thầy:') || low.includes('học trò:') || low.includes('nam:')
+      ) {
+        speaker = 'charA';
+      } else {
+        speaker = idx % 2 === 0 ? 'charA' : 'charB';
+      }
+
+      // Loại bỏ tiền tố tên nhân vật (ví dụ "Bà lão: ", "Student: ")
+      let cleanText = (raw || '').replace(/^[^:]+:\s*/, '');
+      // Loại bỏ toàn bộ phần trong ngoặc đơn (...) hoặc ngoặc vuông [...]
+      cleanText = cleanText.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').replace(/["'“”]/g, '').trim();
+
+      return {
+        panelNumber: p.panelNumber || (idx + 1),
+        title: p.title || `Khung ${idx + 1}`,
+        speaker,
+        text: cleanText
+      };
+    });
+
+    const punchline = isVi
+      ? (story.vietnamesePunchline || (story.language === 'vi' ? story.bottomPunchline : '') || story.bottomPunchline || '')
+      : (story.englishPunchline || (story.language === 'en' ? story.bottomPunchline : '') || story.bottomPunchline || '');
+
+    if (punchline) {
+      const cleanPunch = punchline
+        .replace(/\(.*?\)/g, '')
+        .replace(/\[.*?\]/g, '')
+        .replace(/["'“”]/g, '')
+        .trim();
+      list.push({
+        panelNumber: list.length + 1,
+        title: isVi ? 'Quote Chốt Hạ' : 'Quote Footer',
+        speaker: 'narrator',
+        text: cleanPunch
+      });
+    }
+    return list;
+  };
+
+  // Tự động khởi tạo & đồng bộ lời thoại khi currentStory hoặc ttsLanguage thay đổi
+  React.useEffect(() => {
+    const list = buildStoryDialogues(currentStory, ttsLanguage);
+    setEditableDialogues(list);
+  }, [currentStory, ttsLanguage]);
+
+  // Chuyển đổi ngôn ngữ đọc lồng tiếng và tự động chỉnh bộ diễn viên tương ứng
+  const handleSwitchTtsLanguage = (newLang) => {
+    setTtsLanguage(newLang);
+    if (newLang === 'vi') {
+      setVoiceCast({
+        charA: 'vi-VN-NamMinhNeural',
+        charB: 'vi-VN-HoaiMyNeural',
+        narrator: 'vi-VN-NamMinhNeural'
+      });
+    } else {
+      setVoiceCast({
+        charA: 'en-US-GuyNeural',
+        charB: 'en-US-AriaNeural',
+        narrator: 'en-US-ChristopherNeural'
+      });
+    }
+    const newList = buildStoryDialogues(currentStory, newLang);
+    setEditableDialogues(newList);
+  };
+
+  // Cập nhật câu thoại thủ công từng dòng
+  const handleUpdateDialogueText = (index, newText) => {
+    setEditableDialogues(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], text: newText };
+      return copy;
+    });
+  };
+
+  const handleUpdateDialogueSpeaker = (index, newSpeaker) => {
+    setEditableDialogues(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], speaker: newSpeaker };
+      return copy;
+    });
+  };
+
+  const handleResetDialogues = () => {
+    const list = buildStoryDialogues(currentStory, ttsLanguage);
+    setEditableDialogues(list);
+  };
+
+  // Kiểm tra cảnh báo lệch ngôn ngữ giữa giọng đọc và câu thoại
+  const checkLanguageMismatch = () => {
+    const hasViVoice = [voiceCast.charA, voiceCast.charB, voiceCast.narrator].some(v => v?.includes('vi-VN'));
+    const hasEnVoice = [voiceCast.charA, voiceCast.charB, voiceCast.narrator].some(v => v?.includes('en-') || v?.includes('en_'));
+    
+    const allTexts = (editableDialogues || []).map(d => d.text).filter(Boolean).join(' ');
+    const hasVnDiacritics = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(allTexts);
+    const enWordMatches = allTexts.match(/\b(the|and|is|in|it|you|that|he|was|for|on|are|with|as|his|they|at|be|this|have|from|tree|apple|potter|workshop|fable|student)\b/gi);
+    const hasManyEnWords = enWordMatches && enWordMatches.length >= 2;
+
+    if (hasViVoice && hasManyEnWords && !hasVnDiacritics) {
+      return {
+        mismatch: true,
+        type: 'vi_voice_en_text',
+        message: 'Cảnh báo: Giọng đọc đang chọn là Tiếng Việt (Nam Minh / Hoài My) nhưng lời thoại là Tiếng Anh. AI sẽ phát âm từ tiếng Anh theo kiểu tiếng Việt gây khó hiểu!',
+        actionText: '🇻🇳 Tự động đổi câu thoại sang Tiếng Việt chuẩn'
+      };
+    }
+    if (hasEnVoice && hasVnDiacritics) {
+      return {
+        mismatch: true,
+        type: 'en_voice_vi_text',
+        message: 'Cảnh báo: Giọng đọc đang chọn là Tiếng Anh nhưng lời thoại có dấu Tiếng Việt!',
+        actionText: '🇬🇧 Tự động đổi câu thoại sang Tiếng Anh'
+      };
+    }
+    return { mismatch: false };
+  };
 
   // Play / Pause preview audio for Voice
   const togglePlayVoice = (voiceId) => {
@@ -259,94 +461,12 @@ export default function YouTubeComicStudioTab() {
     }
   };
 
-  // Trích xuất danh sách thoại của từng khung hình kèm gán nhân vật tự động
+  // Trích xuất danh sách thoại của từng khung hình kèm gán nhân vật tự động (hàm tương thích ngược)
   const getStoryDialogues = () => {
-    let panels = currentStory?.panels;
-    if (!panels || panels.length === 0) {
-      const isVi = storyLanguage === 'vi' || (voiceCast?.charA && voiceCast.charA.includes('vi-VN'));
-      if (isVi) {
-        return [
-          { panelNumber: 1, title: 'Bắt đầu', speaker: 'charA', text: 'Này bạn, bạn đang vội vã đi tìm điều gì thế?' },
-          { panelNumber: 2, title: 'Nghi vấn', speaker: 'charB', text: 'Tôi tìm thành công, tôi sợ mình sẽ bỏ lỡ cơ hội.' },
-          { panelNumber: 3, title: 'Đối thoại', speaker: 'charA', text: 'Cây sồi trăm năm cần thời gian bén rễ sâu trong lòng đất.' },
-          { panelNumber: 4, title: 'Phản biện', speaker: 'charB', text: 'Nhưng ngoài kia ai cũng đang chạy rất nhanh.' },
-          { panelNumber: 5, title: 'Trí tuệ', speaker: 'charA', text: 'Chạy nhanh mà lạc hướng thì đích đến chỉ là sự mệt mỏi.' },
-          { panelNumber: 6, title: 'Lặng im', speaker: 'charB', text: '' },
-          { panelNumber: 7, title: 'Năm 1', speaker: 'charA', text: 'Năm tháng đi qua sẽ chứng minh giá trị của sự kiên định.' },
-          { panelNumber: 8, title: 'Năm 5', speaker: 'charB', text: 'Tôi bắt đầu hiểu ra bài học của sự tĩnh lặng.' },
-          { panelNumber: 9, title: 'Năm 10', speaker: 'charA', text: 'Mỗi ngày tích lũy một chút chính là con đường vững chắc nhất.' },
-          { panelNumber: 10, title: 'Bình yên', speaker: 'charB', text: 'Cảm ơn bạn, tôi sẽ kiên nhẫn bước tiếp con đường của mình.' },
-          { panelNumber: 11, title: 'Quote', speaker: 'narrator', text: 'Bình an trong tâm chính là khởi đầu của mọi kỳ tích.' }
-        ];
-      } else {
-        return [
-          { panelNumber: 1, title: 'Start', speaker: 'charA', text: 'Where are you rushing in such a hurry, young friend?' },
-          { panelNumber: 2, title: 'Question', speaker: 'charB', text: 'I am looking for quick success before time runs out.' },
-          { panelNumber: 3, title: 'Wisdom', speaker: 'charA', text: 'A great oak takes decades to quietly root deep into the earth.' },
-          { panelNumber: 4, title: 'Debate', speaker: 'charB', text: 'But everyone around me seems to be moving so fast.' },
-          { panelNumber: 5, title: 'Truth', speaker: 'charA', text: 'Moving fast in the wrong direction only leads to exhaustion.' },
-          { panelNumber: 6, title: 'Silence', speaker: 'charB', text: '' },
-          { panelNumber: 7, title: 'Year 1', speaker: 'charA', text: 'Quiet persistence always outlasts fleeting hype.' },
-          { panelNumber: 8, title: 'Year 5', speaker: 'charB', text: 'I think I finally understand the true value of patience.' },
-          { panelNumber: 9, title: 'Year 10', speaker: 'charA', text: 'Small steady steps each day build an unshakable future.' },
-          { panelNumber: 10, title: 'Peace', speaker: 'charB', text: 'Thank you, I will walk with peace and determination.' },
-          { panelNumber: 11, title: 'Quote', speaker: 'narrator', text: 'True strength begins with stillness of the mind.' }
-        ];
-      }
+    if (editableDialogues && editableDialogues.length > 0) {
+      return editableDialogues;
     }
-    const list = panels.map((p, idx) => {
-      let raw = p.dialogue || p.dialogueOrNarration || '';
-      let speaker = 'charA';
-      const low = raw.toLowerCase();
-      if (
-        low.includes('narrator:') || low.includes('caption:') ||
-        low.includes('dẫn chuyện:') || low.includes('người kể:') || low.includes('chú thích:')
-      ) {
-        speaker = 'narrator';
-      } else if (
-        low.includes('maya:') || low.includes('woman:') || low.includes('girl:') || low.includes('mother:') ||
-        low.includes('bà lão:') || low.includes('cô bé:') || low.includes('cô gái:') || low.includes('người mẹ:') ||
-        low.includes('nữ:') || low.includes('chị:') || low.includes('em gái:')
-      ) {
-        speaker = 'charB';
-      } else if (
-        low.includes('leo:') || low.includes('man:') || low.includes('boy:') || low.includes('neighbor:') ||
-        low.includes('ông lão:') || low.includes('cậu bé:') || low.includes('chàng trai:') || low.includes('người thợ:') ||
-        low.includes('người cha:') || low.includes('người thầy:') || low.includes('học trò:') || low.includes('nam:')
-      ) {
-        speaker = 'charA';
-      } else {
-        speaker = idx % 2 === 0 ? 'charA' : 'charB';
-      }
-
-      // Loại bỏ tiền tố tên nhân vật (ví dụ "Bà lão: ", "Student: ")
-      let cleanText = raw.replace(/^[^:]+:\s*/, '');
-      // Loại bỏ toàn bộ phần trong ngoặc đơn (...) hoặc ngoặc vuông [...]
-      // (chứa bản dịch tiếng Việt, hành động như "(Đứng im lặng...)", "(Thở dài)", "(Mỉm cười)")
-      cleanText = cleanText.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').replace(/["'“”]/g, '').trim();
-
-      return {
-        panelNumber: p.panelNumber || (idx + 1),
-        title: p.title || `Panel ${idx + 1}`,
-        speaker,
-        text: cleanText
-      };
-    });
-
-    if (currentStory.bottomPunchline) {
-      const cleanPunch = currentStory.bottomPunchline
-        .replace(/\(.*?\)/g, '')
-        .replace(/\[.*?\]/g, '')
-        .replace(/["'“”]/g, '')
-        .trim();
-      list.push({
-        panelNumber: list.length + 1,
-        title: 'Quote Footer',
-        speaker: 'narrator',
-        text: cleanPunch
-      });
-    }
-    return list;
+    return buildStoryDialogues(currentStory, ttsLanguage);
   };
 
   const handleImageFileChange = (e) => {
@@ -429,6 +549,7 @@ export default function YouTubeComicStudioTab() {
       if (res.data?.story) {
         const enrichedStory = { ...res.data.story, language: storyLanguage };
         setCurrentStory(enrichedStory);
+        handleSwitchTtsLanguage(storyLanguage);
         setNotification({
           type: 'success',
           message: `Đã sáng tác xong kịch bản (${storyLanguage === 'vi' ? '🇻🇳 Tiếng Việt' : '🇬🇧 Tiếng Anh'}): "${enrichedStory.title || enrichedStory.vietnameseTitle}"! Hãy kéo xuống xem kịch bản và lấy Prompt vẽ tranh bên dưới.`
@@ -1276,10 +1397,82 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     {/* NỘI DUNG CHẾ ĐỘ 1: LỒNG TIẾNG AI ĐA NHÂN VẬT */}
                     {audioMode === 'ai_voice' && (
                       <div className="space-y-3.5 pt-2 border-t border-slate-200 dark:border-slate-800 animate-fadeIn">
+                        
+                        {/* LỰA CHỌN NGÔN NGỮ LỒNG TIẾNG */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-red-500" />
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              Ngôn ngữ đọc lồng tiếng:
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              ({ttsLanguage === 'vi' ? 'Khớp tiếng Việt chuẩn' : 'Khớp tiếng Anh bản xứ'})
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchTtsLanguage('vi')}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                                ttsLanguage === 'vi'
+                                  ? 'bg-red-600 text-white shadow-xs'
+                                  : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                              }`}
+                            >
+                              <span>🇻🇳 Tiếng Việt</span>
+                              {ttsLanguage === 'vi' && <Check className="w-3 h-3" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSwitchTtsLanguage('en')}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                                ttsLanguage === 'en'
+                                  ? 'bg-red-600 text-white shadow-xs'
+                                  : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                              }`}
+                            >
+                              <span>🇬🇧 Tiếng Anh</span>
+                              {ttsLanguage === 'en' && <Check className="w-3 h-3" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* CẢNH BÁO LỆCH NGÔN NGỮ GIỮA GIỌNG VÀ CÂU THOẠI */}
+                        {(() => {
+                          const check = checkLanguageMismatch();
+                          if (!check.mismatch) return null;
+                          return (
+                            <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-xs flex items-start gap-2.5 animate-fadeIn">
+                              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                              <div className="space-y-1.5 flex-1">
+                                <p className="text-slate-700 dark:text-slate-200 leading-snug">
+                                  {check.message}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSwitchTtsLanguage(check.type === 'vi_voice_en_text' ? 'vi' : 'en')}
+                                    className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[11px] transition shadow-xs flex items-center gap-1"
+                                  >
+                                    <span>{check.actionText}</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSwitchTtsLanguage(check.type === 'vi_voice_en_text' ? 'en' : 'vi')}
+                                    className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-medium text-[11px] transition"
+                                  >
+                                    {check.type === 'vi_voice_en_text' ? 'Đổi giọng sang Tiếng Anh' : 'Đổi giọng sang Tiếng Việt'}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                             <User className="w-3.5 h-3.5 text-red-500" />
-                            <span>Phân vai diễn viên lồng tiếng (Hỗ trợ cả Tiếng Việt & Tiếng Anh):</span>
+                            <span>Phân vai diễn viên lồng tiếng:</span>
                           </span>
                           <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
                             ✓ Khớp 100% từng khung hình
@@ -1396,15 +1589,79 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                           </div>
                         </div>
 
-                        {currentStory ? (
-                          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-slate-700 dark:text-slate-300">
-                            💡 <b>Đã đồng bộ lời thoại:</b> Lấy tự động <b>{currentStory.panels?.length || 11} câu thoại</b> từ câu chuyện <i>"{currentStory.title}"</i>. Mỗi nhân vật sẽ đọc đúng câu thoại của mình khi camera zoom đến ô tranh đó.
+                        {/* BẢNG XEM & SỬA CÂU THOẠI TRƯỚC KHI RENDER */}
+                        <div className="p-3 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Edit3 className="w-4 h-4 text-red-500" />
+                              <span className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                                Lời thoại sẽ đọc lồng tiếng ({editableDialogues.length} câu):
+                              </span>
+                              <span className="text-[10px] px-2 py-0.2 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                {ttsLanguage === 'vi' ? '🇻🇳 Lời Việt' : '🇬🇧 Lời Anh'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={handleResetDialogues}
+                                title="Khôi phục câu thoại mặc định"
+                                className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1 underline"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                <span>Gốc</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setIsDialogueListOpen(!isDialogueListOpen)}
+                                className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-bold text-[11px] flex items-center gap-1"
+                              >
+                                <span>{isDialogueListOpen ? 'Thu gọn' : 'Xem & Sửa'}</span>
+                                {isDialogueListOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                              </button>
+                            </div>
                           </div>
-                        ) : (
-                          <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-slate-700 dark:text-slate-300">
-                            💡 Chưa chọn truyện mẫu ở Tab 1. Hệ thống sẽ tự động dùng kịch bản đối thoại triết lý mẫu cho từng ô tranh.
-                          </div>
-                        )}
+
+                          {/* Xem trước nhanh 2 câu đầu nếu đang thu gọn */}
+                          {!isDialogueListOpen && editableDialogues.length > 0 && (
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 p-2 rounded-lg truncate">
+                              <b>Khung 1:</b> "{editableDialogues[0]?.text}" &bull; <b>Khung 2:</b> "{editableDialogues[1]?.text}" ... <i>(Bấm "Xem & Sửa" để xem/đổi lời từng khung)</i>
+                            </div>
+                          )}
+
+                          {/* Drawer danh sách đầy đủ khi bấm mở rộng */}
+                          {isDialogueListOpen && (
+                            <div className="space-y-2 max-h-72 overflow-y-auto pr-1 pt-1 border-t border-slate-100 dark:border-slate-800 animate-fadeIn">
+                              {editableDialogues.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-xs"
+                                >
+                                  <span className="w-20 shrink-0 font-bold text-[10px] text-slate-500 text-center bg-slate-200 dark:bg-slate-700 px-1 py-0.5 rounded">
+                                    {item.title || `Khung ${idx + 1}`}
+                                  </span>
+                                  <select
+                                    value={item.speaker}
+                                    onChange={(e) => handleUpdateDialogueSpeaker(idx, e.target.value)}
+                                    className="w-24 shrink-0 px-1.5 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-800 dark:text-slate-200"
+                                  >
+                                    <option value="charA">Nhân vật 1</option>
+                                    <option value="charB">Nhân vật 2</option>
+                                    <option value="narrator">Dẫn chuyện</option>
+                                  </select>
+                                  <input
+                                    type="text"
+                                    value={item.text}
+                                    onChange={(e) => handleUpdateDialogueText(idx, e.target.value)}
+                                    placeholder="(Không nói gì / Khoảnh khắc tĩnh lặng)"
+                                    className="flex-1 min-w-0 px-2 py-1 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500 font-medium"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
                       </div>
                     )}
 
@@ -1696,8 +1953,20 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     }}
                     className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs"
                   >
-                    <span>Xem Kịch Bản & Lấy Prompt</span>
+                    <span>Xem Kịch Bản</span>
                     <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentStory(fable);
+                      setActiveTab('video-maker');
+                    }}
+                    className="py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition flex items-center justify-center gap-1 shadow-xs"
+                    title="Dùng câu chuyện này để xuất video Shorts ngay"
+                  >
+                    <Film className="w-3.5 h-3.5" />
+                    <span>Làm Video</span>
                   </button>
 
                   <button
