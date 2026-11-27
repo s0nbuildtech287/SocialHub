@@ -148,28 +148,34 @@ const BGM_PRESETS = [
   { id: 'deep_reflection', name: 'Deep Night Reflection', desc: 'Trầm lắng, chiêm nghiệm về đêm', audioUrl: 'http://localhost:5000/assets/bgm/deep_reflection.mp3', tag: 'Triết Lý' }
 ];
 
-const VOICE_OPTIONS_MALE = [
-  { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Truyền cảm, tự nhiên)' },
-  { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
-  { id: 'en-US-AndrewNeural', name: '🇺🇸 Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
-  { id: 'en-GB-RyanNeural', name: '🇬🇧 Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
-  { id: 'en-US-BrianNeural', name: '🇺🇸 Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' }
-];
-
-const VOICE_OPTIONS_FEMALE = [
-  { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Dịu dàng, sâu lắng)' },
-  { id: 'en-US-AriaNeural', name: '🇺🇸 Aria (Nữ Mỹ - Nhẹ nhàng, sâu sắc)' },
-  { id: 'en-US-AvaNeural', name: '🇺🇸 Ava (Nữ Mỹ - Điềm đạm, ấm áp)' },
-  { id: 'en-GB-SoniaNeural', name: '🇬🇧 Sonia (Nữ Anh - Thanh lịch, tinh tế)' },
-  { id: 'en-US-EmmaNeural', name: '🇺🇸 Emma (Nữ Mỹ - Tươi vui, tự nhiên)' }
-];
-
-const VOICE_OPTIONS_NARRATOR = [
-  { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Giọng kể trầm ấm, truyền cảm)' },
-  { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Giọng kể dịu dàng, cảm xúc)' },
-  { id: 'en-US-ChristopherNeural', name: '🇺🇸 Christopher (Nam Mỹ - Trầm ấm, kinh điển)' },
-  { id: 'en-GB-ThomasNeural', name: '🇬🇧 Thomas (Nam Anh - Đậm chất cổ tích/BBC)' },
-  { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Giọng kể hiện đại)' }
+const VOICE_CATALOG = [
+  {
+    group: '🇻🇳 Giọng Tiếng Việt (Tự nhiên, truyền cảm)',
+    voices: [
+      { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Trầm ấm, truyền cảm)' },
+      { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Dịu dàng, cảm xúc)' }
+    ]
+  },
+  {
+    group: '🇺🇸🇬🇧 Giọng Nam Tiếng Anh',
+    voices: [
+      { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
+      { id: 'en-US-AndrewNeural', name: '🇺🇸 Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
+      { id: 'en-GB-RyanNeural', name: '🇬🇧 Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
+      { id: 'en-US-BrianNeural', name: '🇺🇸 Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' },
+      { id: 'en-US-ChristopherNeural', name: '🇺🇸 Christopher (Nam Mỹ - Trầm ấm kinh điển)' },
+      { id: 'en-GB-ThomasNeural', name: '🇬🇧 Thomas (Nam Anh - Đậm chất cổ tích/BBC)' }
+    ]
+  },
+  {
+    group: '🇺🇸🇬🇧 Giọng Nữ Tiếng Anh',
+    voices: [
+      { id: 'en-US-AriaNeural', name: '🇺🇸 Aria (Nữ Mỹ - Nhẹ nhàng, sâu sắc)' },
+      { id: 'en-US-AvaNeural', name: '🇺🇸 Ava (Nữ Mỹ - Điềm đạm, ấm áp)' },
+      { id: 'en-GB-SoniaNeural', name: '🇬🇧 Sonia (Nữ Anh - Thanh lịch, tinh tế)' },
+      { id: 'en-US-EmmaNeural', name: '🇺🇸 Emma (Nữ Mỹ - Tươi vui, tự nhiên)' }
+    ]
+  }
 ];
 
 export default function YouTubeComicStudioTab() {
@@ -253,21 +259,32 @@ export default function YouTubeComicStudioTab() {
       } else {
         speaker = idx % 2 === 0 ? 'charA' : 'charB';
       }
-      const cleanText = raw.replace(/^[^:]+:\s*/, '').replace(/["']/g, '').trim();
+
+      // Loại bỏ tiền tố tên nhân vật (ví dụ "Bà lão: ", "Student: ")
+      let cleanText = raw.replace(/^[^:]+:\s*/, '');
+      // Loại bỏ toàn bộ phần trong ngoặc đơn (...) hoặc ngoặc vuông [...]
+      // (chứa bản dịch tiếng Việt, hành động như "(Đứng im lặng...)", "(Thở dài)", "(Mỉm cười)")
+      cleanText = cleanText.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').replace(/["'“”]/g, '').trim();
+
       return {
         panelNumber: p.panelNumber || (idx + 1),
         title: p.title || `Panel ${idx + 1}`,
         speaker,
-        text: cleanText || p.title || 'Scene dialogue'
+        text: cleanText
       };
     });
 
     if (currentStory.bottomPunchline) {
+      const cleanPunch = currentStory.bottomPunchline
+        .replace(/\(.*?\)/g, '')
+        .replace(/\[.*?\]/g, '')
+        .replace(/["'“”]/g, '')
+        .trim();
       list.push({
         panelNumber: list.length + 1,
         title: 'Quote Footer',
         speaker: 'narrator',
-        text: currentStory.bottomPunchline.replace(/["']/g, '').trim()
+        text: cleanPunch
       });
     }
     return list;
@@ -1210,51 +1227,66 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                          {/* Nhân vật A */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                          {/* Nhân vật 1 */}
                           <div className="space-y-1">
-                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                              Nhân vật Nam (Leo):
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                              <span>Nhân vật 1 (Chính):</span>
+                              <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
                             <select
                               value={voiceCast.charA}
                               onChange={(e) => setVoiceCast({ ...voiceCast, charA: e.target.value })}
                               className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                             >
-                              {VOICE_OPTIONS_MALE.map(v => (
-                                <option key={v.id} value={v.id}>{v.name}</option>
+                              {VOICE_CATALOG.map((group) => (
+                                <optgroup key={group.group} label={group.group}>
+                                  {group.voices.map((v) => (
+                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                  ))}
+                                </optgroup>
                               ))}
                             </select>
                           </div>
 
-                          {/* Nhân vật B */}
+                          {/* Nhân vật 2 */}
                           <div className="space-y-1">
-                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                              Nhân vật Nữ (Maya):
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                              <span>Nhân vật 2 (Đối thoại):</span>
+                              <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
                             <select
                               value={voiceCast.charB}
                               onChange={(e) => setVoiceCast({ ...voiceCast, charB: e.target.value })}
                               className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                             >
-                              {VOICE_OPTIONS_FEMALE.map(v => (
-                                <option key={v.id} value={v.id}>{v.name}</option>
+                              {VOICE_CATALOG.map((group) => (
+                                <optgroup key={group.group} label={group.group}>
+                                  {group.voices.map((v) => (
+                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                  ))}
+                                </optgroup>
                               ))}
                             </select>
                           </div>
 
                           {/* Người dẫn chuyện */}
                           <div className="space-y-1">
-                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                              Người kể & Quote:
+                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                              <span>Người dẫn & Quote:</span>
+                              <span className="text-[9px] text-slate-400 font-normal">Nam/Nữ tùy chọn</span>
                             </label>
                             <select
                               value={voiceCast.narrator}
                               onChange={(e) => setVoiceCast({ ...voiceCast, narrator: e.target.value })}
                               className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500"
                             >
-                              {VOICE_OPTIONS_NARRATOR.map(v => (
-                                <option key={v.id} value={v.id}>{v.name}</option>
+                              {VOICE_CATALOG.map((group) => (
+                                <optgroup key={group.group} label={group.group}>
+                                  {group.voices.map((v) => (
+                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                  ))}
+                                </optgroup>
                               ))}
                             </select>
                           </div>

@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import asyncio
+import re
 import cv2
 import numpy as np
 import subprocess
@@ -143,12 +144,23 @@ def render_sync_video(config):
                 speaker = dia.get('speaker', 'narrator')
                 voice = voice_cast.get(speaker, voice_cast.get('narrator', 'en-US-ChristopherNeural'))
 
-                if not text:
-                    # Default placeholder if dialogue empty
-                    text = "A meaningful moment in silence." if s_idx < total_scenes - 1 else "Wisdom outlasts time."
+                # Clean text: remove stage directions, translations, or parenthetical commentary
+                text = re.sub(r'\(.*?\)', '', text)
+                text = re.sub(r'\[.*?\]', '', text)
+                text = text.replace('"', '').replace("'", '').replace('“', '').replace('”', '').strip()
 
                 clip_p = os.path.join(temp_dir, f'scene_{s_idx:02d}.mp3')
-                asyncio.run(generate_tts_clip(text, voice, clip_p))
+
+                if not text:
+                    # Pure silence for reflective moment without AI speaking strange placeholder words
+                    cmd_silence = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', '2.2', '-c:a', 'libmp3lame', clip_p]
+                    subprocess.run(cmd_silence, check=True, stderr=subprocess.DEVNULL)
+                else:
+                    # If Character A and B share the same voice (e.g. 2 males), slightly shift speed/rate so they sound like 2 distinct people
+                    rate = '-2%'
+                    if speaker == 'charB' and voice_cast.get('charA') == voice_cast.get('charB'):
+                        rate = '+6%'
+                    asyncio.run(generate_tts_clip(text, voice, clip_p, rate=rate))
 
                 dur_clip = get_audio_duration(clip_p, ffmpeg_exe)
                 scene_durations.append(dur_clip)
