@@ -1469,70 +1469,330 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
         </div>
       )}
 
-      {/* 5. TAB 3: MUSIC & SOUND DESIGN GUIDE */}
+      {/* 5. TAB 3: MUSIC & SOUND DESIGN GUIDE (CORNFIELD CHASE & VIRAL PHILOSOPHY BGM) */}
       {activeTab === 'music-guide' && (
-        <div className="app-card p-6 sm:p-7 space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Music className="w-5 h-5 text-red-500" />
-              <span>Cẩm Nang Âm Nhạc BGM Cho Video Shorts Ngụ Ngôn</span>
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Âm nhạc chiếm 50% cảm xúc của người xem. Chọn đúng track nhạc piano da diết sẽ khiến khán giả xem đi xem lại và chia sẻ clip.
+        <div className="space-y-6 animate-fadeIn">
+          
+          {/* Header Banner */}
+          <div className="app-card p-6 sm:p-7 bg-gradient-to-r from-purple-900/20 via-slate-900/40 to-blue-900/20 border border-purple-500/30 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-purple-600 text-white shadow-md">
+                <Music className="w-5 h-5" />
+              </span>
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Gu Âm Nhạc BGM Viral: Tinh Thần "Cornfield Chase" & Triết Lý Cuộc Sống</span>
+                </h3>
+                <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                  Cẩm nang chọn nhạc nền không lời đưa cảm xúc người xem chạm đỉnh cao trào
+                </p>
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl">
+              <b>Cornfield Chase</b> (của Hans Zimmer trong phim <i>Interstellar</i>) là lựa chọn kinh điển cho các video/story mang màu sắc chiêm nghiệm, triết lý, truyền cảm hứng mạnh mẽ và có chiều sâu (vibe vũ trụ, dòng thời gian và sự trưởng thành). Dưới đây là kho nhạc nền tuyển chọn chuẩn xác theo từng sắc thái "bài học" để bạn phối cho video của mình:
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
-            {/* Track 1 */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white">Idea 10 / Idea 22</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold">Top 1 Viral</span>
+          {/* NHÓM 1: CHIÊM NGHIỆM, TRIẾT LÝ & CHIỀU SÂU */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                  1. Vibe Chiêm Nghiệm, Triết Lý & Chiều Sâu (Giống Cornfield Chase Nhất)
+                </h4>
               </div>
-              <div className="text-xs text-slate-500">Nghệ sĩ: <b>Gibran Alcocer</b></div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                Tiếng piano mộc mạc, da diết, mở đầu êm dịu và tăng dần cảm xúc ở đoạn triết lý. Hợp nhất với câu chuyện "Cây táo" hoặc "Tình mẫu tử".
-              </p>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20">
+                Cao Trào Cảm Xúc
+              </span>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Bắt đầu nhẹ nhàng, lặp đi lặp lại rồi dâng trào cảm xúc vỡ òa, cực kỳ hợp để lồng tiếng (voice-over) hoặc chạy chữ cho những câu chuyện đắt giá.
+            </p>
 
-            {/* Track 2 */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white">Experience</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 font-bold">Bừng Sáng</span>
-              </div>
-              <div className="text-xs text-slate-500">Nghệ sĩ: <b>Ludovico Einaudi</b></div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                Khởi đầu tĩnh lặng và bùng nổ ở điệp khúc. Cực kỳ thích hợp cho câu chuyện "Người thợ gốm" hoặc lúc nhân vật vượt qua thử thách.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {[
+                {
+                  title: "Cornfield Chase",
+                  artist: "Hans Zimmer (OST Interstellar)",
+                  tag: "Kinh Điển",
+                  tagColor: "bg-amber-500/10 text-amber-500",
+                  desc: "Tiếng đàn organ dồn dập huyền thoại, biểu tượng của thời gian trôi đi không thể lấy lại. Đẩy nhịp tim người xem lên đỉnh điểm ở những khung tranh cuối.",
+                  searchKey: "Cornfield Chase Hans Zimmer slowed"
+                },
+                {
+                  title: "Time",
+                  artist: "Hans Zimmer (OST Inception)",
+                  tag: "Huyền Thoại",
+                  tagColor: "bg-red-500/10 text-red-500",
+                  desc: "Mở đầu cực tĩnh lặng, sau đó đẩy cao trào dần dần từng nốt nhạc, tạo cảm giác vỡ òa nghẹn ngào ở đoạn kết khi nhân vật đốn ngộ chân lý.",
+                  searchKey: "Time Hans Zimmer piano"
+                },
+                {
+                  title: "Experience",
+                  artist: "Ludovico Einaudi",
+                  tag: "Bừng Sáng",
+                  tagColor: "bg-blue-500/10 text-blue-500",
+                  desc: "Giai điệu piano kết hợp violin dồn dập, mang lại cảm giác hành trình trưởng thành, vượt qua 1,000 lần thất bại để chạm đến thành công.",
+                  searchKey: "Experience Ludovico Einaudi"
+                },
+                {
+                  title: "Nuvole Bianche",
+                  artist: "Ludovico Einaudi",
+                  tag: "Chữa Lành",
+                  tagColor: "bg-purple-500/10 text-purple-500",
+                  desc: "Nhẹ nhàng, sâu lắng và hơi man mác buồn, hợp với những bài học về sự buông bỏ, tình người thầm lặng hoặc sự hy sinh vì thế hệ mai sau.",
+                  searchKey: "Nuvole Bianche piano"
+                },
+                {
+                  title: "Idea 10 / Idea 22",
+                  artist: "Gibran Alcocer",
+                  tag: "Top 1 Viral",
+                  tagColor: "bg-emerald-500/10 text-emerald-500",
+                  desc: "Hiện tượng số 1 trên TikTok/Shorts. Tiếng piano mộc mạc tối giản nhưng chạm thẳng vào đáy lòng, cực kỳ hợp với các câu quote ngắn gọn.",
+                  searchKey: "Idea 10 Gibran Alcocer"
+                },
+                {
+                  title: "On the Nature of Daylight",
+                  artist: "Max Richter",
+                  tag: "Tỉnh Thức",
+                  tagColor: "bg-rose-500/10 text-rose-500",
+                  desc: "Dàn dây da diết, trầm buồn và sâu thẳm, cực kỳ hợp với những câu chuyện về sự thức tỉnh sau những cú ngã đau đớn của cuộc đời.",
+                  searchKey: "On the Nature of Daylight Max Richter"
+                }
+              ].map((song) => (
+                <div
+                  key={song.title}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-amber-500/40 transition flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-black text-sm text-slate-900 dark:text-white">
+                        {song.title}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${song.tagColor}`}>
+                        {song.tag}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Nghệ sĩ: <b>{song.artist}</b>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {song.desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-[10px] text-slate-400 font-mono truncate max-w-[170px]">
+                      🔍 {song.searchKey}
+                    </span>
+                    <button
+                      onClick={() => handleCopy(song.searchKey, `song_${song.title}`)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-950 font-bold text-[10px] transition flex items-center gap-1 shrink-0"
+                    >
+                      {copiedKey === `song_${song.title}` ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedKey === `song_${song.title}` ? 'Đã copy' : 'Copy từ khóa'}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {/* Track 3 */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 dark:text-white">River Flows in You (Slowed)</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-500 font-bold">Hoài Niệm</span>
-              </div>
-              <div className="text-xs text-slate-500">Nghệ sĩ: <b>Yiruma</b></div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                Bản phối piano chậm hoặc lofi ấm áp, tạo cảm giác thư giãn, chiêm nghiệm và bình yên cho người xem vào buổi tối.
-              </p>
-            </div>
-
           </div>
 
-          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-slate-700 dark:text-slate-300 space-y-1.5">
-            <div className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-              <Volume2 className="w-4 h-4" />
-              <span>Mẹo làm Video Shorts đạt triệu view từ tranh vẽ 9:16:</span>
+          {/* NHÓM 2: TỈNH THỨC, KỶ LUẬT & DARK MOTIVATION */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                  2. Vibe "Tỉnh Thức", Kỷ Luật & Bứt Phá (Dark Motivation / Stoicism)
+                </h4>
+              </div>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20">
+                Kỷ Luật Thép
+              </span>
             </div>
-            <ul className="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-400 text-[11px]">
-              <li><b>Hiệu ứng lia camera (Pan & Zoom):</b> Đừng để ảnh tĩnh hoàn toàn. Hãy lia camera từ từ từ Panel 1 xuống đến Panel cuối và dừng lại 3 giây ở câu chốt (Bottom quote).</li>
-              <li><b>Giữ độ dài từ 30s - 45s:</b> Vừa đủ để người xem kịp đọc chữ trên bong bóng thoại mà không bấm lướt qua.</li>
-              <li><b>Tỷ lệ giữ chân (Retention):</b> Đặt câu hỏi tò mò ở 3 giây đầu (Hook) để giữ chân người xem đến panel lật ngược vấn đề.</li>
-            </ul>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Dành cho video về phát triển bản thân, sự cô độc trên hành trình thành công, kiên trì trong bóng tối khi người khác nghi ngờ.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {[
+                {
+                  title: "Solitude",
+                  artist: "Felsmann + Tiley Reinterpretation",
+                  tag: "Tập Trung",
+                  desc: "Tiếng bass trầm ấm và tiếng piano vang vọng từ xa, tạo cảm giác lạnh lùng, tỉnh táo và cô độc chiến đấu vì lý tưởng.",
+                  searchKey: "Solitude Felsmann Tiley slowed"
+                },
+                {
+                  title: "Snowfall",
+                  artist: "Øneheart & reidenshi",
+                  tag: "Ambient Night",
+                  desc: "Giai điệu không gian trôi nổi, hơi u tối nhưng cực kỳ gây nghiện, rất hợp cho các câu thoại chiêm nghiệm vào ban đêm.",
+                  searchKey: "Snowfall Oneheart reidenshi"
+                },
+                {
+                  title: "Memory Reboot",
+                  artist: "VØJ, Narvent (Slowed)",
+                  tag: "Bứt Phá",
+                  desc: "Hơi hướng synthwave hoài niệm nhưng đầy sức mạnh, hoàn hảo cho những thước phim nhân vật đứng dậy làm lại từ đầu.",
+                  searchKey: "Memory Reboot slowed"
+                },
+                {
+                  title: "Apathy",
+                  artist: "Øneheart",
+                  tag: "Tự Sự",
+                  desc: "Ngắn gọn, sâu lắng, mang đúng chất tự sự một mình đối diện với giông bão cuộc đời.",
+                  searchKey: "Apathy Oneheart"
+                }
+              ].map((song) => (
+                <div
+                  key={song.title}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-blue-500/40 transition flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-black text-sm text-slate-900 dark:text-white">
+                        {song.title}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">
+                        {song.tag}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 truncate">
+                      <b>{song.artist}</b>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {song.desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                    <button
+                      onClick={() => handleCopy(song.searchKey, `song_${song.title}`)}
+                      className="w-full py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white font-bold text-[10px] transition flex items-center justify-center gap-1"
+                    >
+                      {copiedKey === `song_${song.title}` ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedKey === `song_${song.title}` ? 'Đã copy từ khóa' : 'Copy từ khóa tìm nhạc'}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* NHÓM 3: NHẸ NHÀNG, TÍCH CỰC & BÌNH YÊN (CHỮA LÀNH) */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                  3. Vibe Nhẹ Nhàng, Tích Cực & Bình Yên (Chữa Lành & Đời Thường)
+                </h4>
+              </div>
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                Ấm Áp & Biết Ơn
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Dành cho bài học về lòng tốt vị tha, tình cảm gia đình, sự trân trọng những điều giản dị trong cuộc sống thường nhật.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {[
+                {
+                  title: "Married Life",
+                  artist: "Michael Giacchino (OST Up)",
+                  tag: "Đồng Cảm",
+                  desc: "Rất dễ tạo sự rung động về dòng thời gian, sự gắn bó và tình người ấm áp.",
+                  searchKey: "Married Life Up piano slowed"
+                },
+                {
+                  title: "Mia & Sebastian’s Theme",
+                  artist: "Justin Hurwitz (OST La La Land)",
+                  tag: "Mộng Mơ",
+                  desc: "Lãng mạn nhưng cũng đầy thực tế về sự đánh đổi giữa ước mơ và hiện thực.",
+                  searchKey: "Mia and Sebastian theme piano"
+                },
+                {
+                  title: "Comptine d'un autre été",
+                  artist: "Yann Tiersen (OST Amélie)",
+                  tag: "Cổ Điển",
+                  desc: "Tiếng đàn piano Pháp tinh tế, mang lại cảm giác thông tuệ, thanh thản và nhẹ nhõm.",
+                  searchKey: "Comptine dun autre ete Yann Tiersen"
+                },
+                {
+                  title: "QKThr",
+                  artist: "Aphex Twin",
+                  tag: "Hoài Niệm",
+                  desc: "Chỉ khoảng 1.5 phút, tiếng đàn mượt mà, cực kỳ hợp làm video ngắn chiêm nghiệm 30-45 giây.",
+                  searchKey: "QKThr Aphex Twin slowed"
+                }
+              ].map((song) => (
+                <div
+                  key={song.title}
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-black text-sm text-slate-900 dark:text-white">
+                        {song.title}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500">
+                        {song.tag}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 truncate">
+                      <b>{song.artist}</b>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {song.desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                    <button
+                      onClick={() => handleCopy(song.searchKey, `song_${song.title}`)}
+                      className="w-full py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white font-bold text-[10px] transition flex items-center justify-center gap-1"
+                    >
+                      {copiedKey === `song_${song.title}` ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedKey === `song_${song.title}` ? 'Đã copy từ khóa' : 'Copy từ khóa tìm nhạc'}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* MẸO TÌM KIẾM & PHỐI NHẠC TRIỆU VIEW */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-500/30 space-y-3">
+            <div className="font-black text-amber-600 dark:text-amber-400 text-sm sm:text-base flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-amber-500" />
+              <span>Bí Quyết Vàng Khi Tìm & Phối Nhạc BGM Trên TikTok / Reels / CapCut:</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-700 dark:text-slate-300">
+              <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-amber-500/20 space-y-1.5">
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  🔍 Mẹo tìm kiếm phiên bản "êm ái" nhất:
+                </span>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Khi gõ tên bài hát trong thư viện nhạc của TikTok/Instagram/CapCut, hãy thêm các từ khóa: <b>"slowed"</b>, <b>"reverb"</b> hoặc <b>"piano cover"</b> (Ví dụ: <i>Cornfield Chase slowed</i>, <i>Time Hans Zimmer piano</i>). Các bản phối này có tiết tấu chậm rãi hơn, không bị gắt, giúp tôn vinh giọng đọc lồng tiếng mà không bị lấn át.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-amber-500/20 space-y-1.5">
+                <span className="font-bold text-slate-900 dark:text-white block">
+                  🎚️ Quy tắc vàng về tỷ lệ âm lượng (Volume Ducking):
+                </span>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Giữ âm lượng giọng đọc ở mức <b>100%</b>, và chỉnh âm lượng nhạc nền ở mức <b>15% - 20%</b>. Ở 3 giây cuối cùng (khi câu danh ngôn xuất hiện), tự động hạ dần âm thanh (Fade-out) để để lại khoảng lặng suy ngẫm trong tâm trí người xem.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 
