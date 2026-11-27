@@ -597,7 +597,11 @@ export default function YouTubeComicStudioTab() {
       }
     } catch (err) {
       console.error('Lỗi scan ảnh:', err);
-      alert('Lỗi quét ảnh: ' + (err.response?.data?.error || err.message));
+      const errText = err.response?.data?.error || err.message;
+      setNotification({
+        type: 'error',
+        message: `Lỗi quét ảnh: ${errText}. Mẹo: Bạn có thể chọn trực tiếp câu chuyện từ menu "Kịch bản câu chuyện đang gắn với video" bên dưới để Render ngay!`
+      });
     } finally {
       setIsScanningImage(false);
     }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import sharp from 'sharp';
 import { db } from '../db.js';
 
 const TONES_CONFIG = {
@@ -275,7 +276,21 @@ export async function scanComicImage(imageBuffer, mimeType = 'image/png') {
     throw new Error('Chưa cấu hình Gemini API Key trong hệ thống.');
   }
 
-  const base64Data = imageBuffer.toString('base64');
+  // Tối ưu hóa kích thước ảnh bằng sharp để tránh lỗi 503 do payload quá lớn
+  let finalBase64 = null;
+  let finalMime = 'image/jpeg';
+  try {
+    const compressed = await sharp(imageBuffer)
+      .resize({ width: 1080, withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+    finalBase64 = compressed.toString('base64');
+  } catch (compErr) {
+    console.warn('Không thể nén ảnh bằng sharp, dùng ảnh gốc:', compErr.message);
+    finalBase64 = imageBuffer.toString('base64');
+    finalMime = mimeType;
+  }
+
   const prompt = `Look at this vertical comic sheet.
 Extract the comic title, and for each panel in sequence from top to bottom (panels 1 to 11 and quote footer):
 Extract the speaker and dialogue text in original language, and provide a natural, emotional Vietnamese translation.
@@ -296,27 +311,44 @@ Return JSON ONLY (no markdown fences, just pure JSON):
   "vietnamesePunchline": "Vietnamese translation of quote"
 }`;
 
-  const res = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
-    {
-      contents: [{
-        parts: [
-          { text: prompt },
-          { inlineData: { mimeType, data: base64Data } }
-        ]
-      }],
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json'
-      }
-    },
-    { timeout: 35000 }
-  );
+  let lastError = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
+        {
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: finalMime, data: finalBase64 } }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json'
+          }
+        },
+        { timeout: 35000 }
+      );
 
-  const text = res.data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Không nhận được phản hồi từ AI Vision');
-  const parsed = cleanAndParseJson(text);
-  if (!parsed || !parsed.panels) throw new Error('Không thể phân tích lời thoại từ ảnh');
-  return parsed;
+      const text = res.data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        const parsed = cleanAndParseJson(text);
+        if (parsed && (parsed.panels || parsed.title)) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      lastError = err;
+      const status = err.response?.status;
+      console.warn(`Lần ${attempt} quét ảnh thất bại (status ${status}):`, err.response?.data?.error?.message || err.message);
+      if (attempt < 3 && (status === 503 || status === 429 || status === 500)) {
+        await new Promise(r => setTimeout(r, 1500 * attempt));
+      }
+    }
+  }
+
+  const msg = lastError?.response?.data?.error?.message || lastError?.message || 'Máy chủ Google AI đang bận';
+  throw new Error(`Google AI đang bị nghẽn (503 / ${msg}). Bạn có thể chọn trực tiếp câu chuyện từ danh mục kịch bản mẫu bên dưới nhé!`);
 }
 
