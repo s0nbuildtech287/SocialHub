@@ -13,6 +13,8 @@ build/
 .env.*
 !.env.example
 *.local
+client_secret*.json
+backend/client_secret*.json
 
 # Local Data Storage
 backend/data/*.json

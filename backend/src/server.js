@@ -15,6 +15,7 @@ import { generateContentIdeas, generateComicStoryScript, scanComicImage } from '
 import { NEWS_SOURCES, fetchNewsFeed, scrapeArticleFromUrl, rewriteNewsToSocialPost } from './services/newsService.js';
 import { scrapePagePosts } from './services/facebookSpyService.js';
 import { renderComicToShortsVideo } from './services/videoGeneratorService.js';
+import { getYoutubeAuthUrl, handleYoutubeCallback, uploadYoutubeShorts, getYoutubeChannelData } from './services/youtubeService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -543,6 +544,72 @@ app.post('/api/youtube/scan-comic-image', upload.single('image'), async (req, re
     res.json({ success: true, story: scanned });
   } catch (err) {
     console.error('Lỗi quét ảnh truyện:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.7 YouTube: Lấy URL đăng nhập OAuth
+app.get('/api/auth/youtube/url', (req, res) => {
+  try {
+    const url = getYoutubeAuthUrl();
+    res.json({ authUrl: url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.8 YouTube: Callback nhận token từ Google
+app.get('/api/auth/youtube/callback', async (req, res) => {
+  try {
+    const { code } = req.query;
+    if (!code) {
+      return res.status(400).send('Không tìm thấy Authorization Code từ Google');
+    }
+    const channel = await handleYoutubeCallback(code);
+    res.redirect('http://localhost:3000/?youtube_connected=true');
+  } catch (err) {
+    console.error('Lỗi xác thực YouTube:', err.message);
+    res.status(500).send(`Lỗi kết nối kênh YouTube: ${err.message}`);
+  }
+});
+
+// 5.9 YouTube: Lấy thông tin kênh và số liệu analytics gần nhất
+app.get('/api/youtube/channel', async (req, res) => {
+  try {
+    const data = await getYoutubeChannelData();
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.10 YouTube: Đăng video Shorts 1-Click
+app.post('/api/youtube/upload-shorts', async (req, res) => {
+  try {
+    const { videoUrl, videoName, title, description, tags, privacyStatus } = req.body;
+    let filePath = null;
+
+    if (videoName) {
+      filePath = path.join(uploadsDir, videoName);
+    } else if (videoUrl) {
+      filePath = path.join(uploadsDir, path.basename(videoUrl));
+    }
+
+    if (!filePath || !fs.existsSync(filePath)) {
+      return res.status(400).json({ error: 'Không tìm thấy file video trên server' });
+    }
+
+    const result = await uploadYoutubeShorts({
+      filePath,
+      title,
+      description,
+      tags,
+      privacyStatus
+    });
+
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('Lỗi upload YouTube Shorts:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

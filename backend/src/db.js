@@ -113,7 +113,7 @@ export const db = {
   },
   addOrUpdateChannel: (channelData) => {
     const channels = initDefaultChannels();
-    const existingIdx = channels.findIndex((c) => c.id === channelData.id || (c.platform === channelData.platform && c.pageId === channelData.pageId));
+    const existingIdx = channels.findIndex((c) => c.id === channelData.id || (c.platform === channelData.platform && (c.pageId === channelData.pageId || c.channelId === channelData.channelId)));
     if (existingIdx >= 0) {
       channels[existingIdx] = { ...channels[existingIdx], ...channelData };
     } else {
@@ -126,6 +126,9 @@ export const db = {
     }
     writeFile(channelsFile, channels);
     return channels;
+  },
+  saveYoutubeChannel: (channelData) => {
+    return db.addOrUpdateChannel(channelData);
   },
   deleteChannel: (channelId) => {
     let channels = initDefaultChannels();

@@ -32,7 +32,13 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
-  Edit3
+  Edit3,
+  BarChart3,
+  Users,
+  Eye,
+  Video,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 
 // Thư viện các câu chuyện ngụ ngôn mẫu chuẩn
@@ -2102,6 +2108,69 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       <li><b>Dừng chân trang:</b> Giữ lại 3 giây cuối cho người xem suy ngẫm câu quote</li>
                       <li><b>Định dạng:</b> H.264 / MP4 tương thích 100% mọi nền tảng</li>
                     </ul>
+
+                    {/* YOUTUBE 1-CLICK PUBLISH SECTION */}
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-800 dark:text-slate-200 text-xs flex items-center gap-1.5">
+                          <Youtube className="w-4 h-4 text-red-500" />
+                          <span>Xuất Bản Lên YouTube Shorts:</span>
+                        </span>
+                        {youtubeChannel ? (
+                          <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>{youtubeChannel.title}</span>
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-amber-500 font-semibold">Chưa kết nối kênh</span>
+                        )}
+                      </div>
+
+                      {youtubeChannel ? (
+                        <div className="space-y-2">
+                          <button
+                            onClick={handleUploadToYoutube}
+                            disabled={isUploadingYoutube}
+                            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition shadow-md shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                          >
+                            {isUploadingYoutube ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Đang Tự Động Tải Lên YouTube Shorts...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-4 h-4" />
+                                <span>🚀 Đăng 1-Click Lên Kênh YouTube Shorts</span>
+                              </>
+                            )}
+                          </button>
+
+                          {youtubeUploadedVideo && (
+                            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between animate-fadeIn">
+                              <span className="font-bold">Đã đăng thành công lên Shorts!</span>
+                              <a
+                                href={`https://www.youtube.com/shorts/${youtubeUploadedVideo.videoId}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-black underline hover:text-emerald-300 flex items-center gap-1"
+                              >
+                                <span>Xem Video Ngay</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleConnectYoutube}
+                          className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                        >
+                          <Youtube className="w-4 h-4 text-white" />
+                          <span>Kết Nối Kênh YouTube (OAuth 2.0) Để Đăng</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2517,6 +2586,235 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
         </div>
       )}
 
+      {/* 6. TAB 5: YOUTUBE CHANNEL & VIEWER ANALYTICS */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          {youtubeChannel ? (
+            <div className="space-y-6">
+              {/* CHANNEL PROFILE BANNER */}
+              <div className="app-card-raised p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-red-500/10 via-rose-500/5 to-transparent flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+                <div className="flex items-center gap-4">
+                  {youtubeChannel.thumbnails?.default?.url ? (
+                    <img
+                      src={youtubeChannel.thumbnails.default.url}
+                      alt={youtubeChannel.title}
+                      className="w-16 h-16 rounded-full border-2 border-red-500 shadow-md object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-2xl shadow-md">
+                      <Youtube className="w-8 h-8" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                        {youtubeChannel.title}
+                      </h2>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Đã kết nối OAuth 2.0</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+                      {youtubeChannel.customUrl || youtubeChannel.id} • {youtubeChannel.description || 'Kênh sáng tạo nội dung tự động với SocialHub'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={fetchYoutubeChannel}
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Làm mới số liệu</span>
+                  </button>
+                  <a
+                    href="https://studio.youtube.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                  >
+                    <span>Mở YouTube Studio</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* STATS OVERVIEW CARDS */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="app-card-raised p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span className="text-[11px] font-bold">Người Đăng Ký</span>
+                    <Users className="w-4 h-4 text-red-500" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {Number(youtubeChannel.statistics?.subscriberCount || 0).toLocaleString('vi-VN')}
+                  </div>
+                  <div className="text-[10px] text-emerald-500 font-medium">Subscribers kênh</div>
+                </div>
+
+                <div className="app-card-raised p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span className="text-[11px] font-bold">Tổng Lượt Xem</span>
+                    <Eye className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {Number(youtubeChannel.statistics?.viewCount || 0).toLocaleString('vi-VN')}
+                  </div>
+                  <div className="text-[10px] text-blue-500 font-medium">Lượt xem toàn kênh</div>
+                </div>
+
+                <div className="app-card-raised p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span className="text-[11px] font-bold">Số Video Đã Đăng</span>
+                    <Video className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {Number(youtubeChannel.statistics?.videoCount || 0).toLocaleString('vi-VN')}
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-medium">Videos công khai</div>
+                </div>
+
+                <div className="app-card-raised p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between text-slate-400">
+                    <span className="text-[11px] font-bold">Hạn Mức Google API</span>
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    10,000 / ngày
+                  </div>
+                  <div className="text-[10px] text-amber-500 font-medium">~6 Video Shorts tự động / ngày</div>
+                </div>
+              </div>
+
+              {/* RECENT SHORTS LIST */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <Film className="w-4 h-4 text-red-500" />
+                    <span>Video Gần Nhất Trên Kênh</span>
+                  </h3>
+                  <span className="text-xs text-slate-400">
+                    {recentShorts?.length || 0} video được tải về
+                  </span>
+                </div>
+
+                {recentShorts && recentShorts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {recentShorts.map((vid) => {
+                      const videoId = vid.id?.videoId || vid.id;
+                      const snippet = vid.snippet || {};
+                      const thumb = snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
+                      return (
+                        <div
+                          key={videoId}
+                          className="app-card-raised p-3 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 hover:border-red-500/40 transition flex flex-col justify-between"
+                        >
+                          <div className="space-y-2">
+                            <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
+                              {thumb && (
+                                <img
+                                  src={thumb}
+                                  alt={snippet.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                              <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md bg-black/80 text-[10px] text-white font-bold flex items-center gap-1">
+                                <Youtube className="w-3 h-3 text-red-500" />
+                                <span>Shorts</span>
+                              </span>
+                            </div>
+
+                            <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-2" title={snippet.title}>
+                              {snippet.title}
+                            </h4>
+
+                            <p className="text-[10px] text-slate-400">
+                              Đăng lúc: {snippet.publishedAt ? new Date(snippet.publishedAt).toLocaleDateString('vi-VN') : 'Mới đây'}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                            <a
+                              href={`https://www.youtube.com/shorts/${videoId}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] transition flex items-center justify-center gap-1"
+                            >
+                              <span>Xem trên Shorts</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                            <button
+                              onClick={() => handleCopy(`https://www.youtube.com/shorts/${videoId}`, `yt_${videoId}`)}
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs transition cursor-pointer"
+                              title="Copy liên kết Shorts"
+                            >
+                              {copiedKey === `yt_${videoId}` ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-center space-y-3">
+                    <Film className="w-10 h-10 text-slate-400 mx-auto" />
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                      Chưa có video Shorts nào được xuất bản từ SocialHub
+                    </div>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                      Hãy sang tab <b>"Tạo Video Shorts (FFmpeg)"</b>, tải ảnh truyện tranh hoặc chọn mẫu có sẵn, sau đó bấm nút <b>"🚀 Đăng 1-Click Lên Kênh YouTube Shorts"</b>.
+                    </p>
+                    <button
+                      onClick={() => setActiveTab('video-maker')}
+                      className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition cursor-pointer"
+                    >
+                      Sang Tab Tạo Video Shorts Ngay
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* EMPTY STATE: NOT CONNECTED */
+            <div className="max-w-xl mx-auto p-8 rounded-3xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-center space-y-5">
+              <div className="w-16 h-16 rounded-2xl bg-red-600/10 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto border border-red-500/20 shadow-md">
+                <Youtube className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                  Kết Nối Kênh YouTube Của Bạn
+                </h2>
+                <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                  Liên kết kênh YouTube bằng tài khoản Google Cloud của bạn để tự động xuất bản video Shorts Full HD dọc 1-Click và theo dõi dữ liệu người xem, lượt đăng ký trực tiếp trên SocialHub.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-left space-y-2 text-xs">
+                <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span>Quyền lợi khi kết nối:</span>
+                </div>
+                <ul className="space-y-1.5 list-disc pl-5 text-slate-600 dark:text-slate-400 text-[11px]">
+                  <li>Đăng video ngắn 1-click tự động kèm hashtag #Shorts và mô tả chuẩn SEO.</li>
+                  <li>Xem trực tiếp số lượng người đăng ký (Subscribers) và tổng lượt xem.</li>
+                  <li>10,000 units quota/ngày miễn phí từ Google, không tốn chi phí duy trì.</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={handleConnectYoutube}
+                className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm transition shadow-lg shadow-red-500/25 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Youtube className="w-5 h-5" />
+                <span>Đăng Nhập & Kết Nối Kênh YouTube Ngay</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
