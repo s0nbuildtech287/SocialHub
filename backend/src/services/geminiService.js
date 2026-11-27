@@ -37,7 +37,7 @@ const PLATFORMS_CONFIG = {
 
 export async function generateContentIdeas({ topic = '', tone = 'office_meme', platform = 'facebook_post' }) {
   const settings = db.getSettings();
-  const apiKey = settings.geminiApiKey;
+  const apiKey = settings.geminiApiKey || process.env.GEMINI_API_KEY;
   const currentTone = TONES_CONFIG[tone] || TONES_CONFIG.office_meme;
   const currentPlatform = PLATFORMS_CONFIG[platform] || PLATFORMS_CONFIG.facebook_post;
 
@@ -132,7 +132,7 @@ function cleanAndParseJson(raw) {
 
 export async function generateComicStoryScript({ topic = 'Sự kiên trì và những thất bại âm thầm', style = 'fable', language = 'vi' }) {
   const settings = db.getSettings();
-  const apiKey = settings.geminiApiKey;
+  const apiKey = settings.geminiApiKey || process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     throw new Error('Chưa cấu hình Gemini API Key trong hệ thống. Vui lòng bấm nút màu vàng "Lấy Prompt Sang Web Chat" để dán vào ChatGPT!');

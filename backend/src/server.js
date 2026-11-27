@@ -5,6 +5,9 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 import { db } from './db.js';
 import { getPageInfo, fetchUserPages, getRecentPosts, publishFacebookPost } from './services/facebookService.js';
