@@ -438,9 +438,6 @@ export default function YouTubeChannelHubTab({ onNavigate }) {
                 <span className="p-2 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400">
                   <Music2 className="w-5 h-5" />
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                  Đang phát triển
-                </span>
               </div>
               <h4 className="text-sm font-black text-slate-900 dark:text-white">
                 Xưởng Video Âm Nhạc / Lofi
@@ -460,9 +457,6 @@ export default function YouTubeChannelHubTab({ onNavigate }) {
               <div className="flex items-center justify-between">
                 <span className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
                   <MessageSquare className="w-5 h-5" />
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                  Đang phát triển
                 </span>
               </div>
               <h4 className="text-sm font-black text-slate-900 dark:text-white">
