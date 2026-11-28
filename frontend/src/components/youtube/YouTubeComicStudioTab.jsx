@@ -319,6 +319,83 @@ export default function YouTubeComicStudioTab({ initialTab = 'generator' }) {
   const [copiedKey, setCopiedKey] = useState(null);
   const [notification, setNotification] = useState(null);
 
+  // YouTube OAuth & Upload States
+  const [youtubeChannel, setYoutubeChannel] = useState(null);
+  const [recentShorts, setRecentShorts] = useState([]);
+  const [isUploadingYoutube, setIsUploadingYoutube] = useState(false);
+  const [youtubeUploadedVideo, setYoutubeUploadedVideo] = useState(null);
+
+  const fetchYoutubeChannel = async () => {
+    try {
+      const res = await axios.get('/api/youtube/channel');
+      if (res.data?.success && res.data.data) {
+        setYoutubeChannel(res.data.data.channel);
+        setRecentShorts(res.data.data.recentVideos || []);
+      }
+    } catch (err) {
+      console.log('Chưa kết nối YouTube hoặc lỗi lấy dữ liệu kênh:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchYoutubeChannel();
+
+    // Kiểm tra nếu redirect từ Google OAuth callback về có query ?youtube_connected=true
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('youtube_connected') === 'true') {
+      fetchYoutubeChannel();
+      setNotification({
+        type: 'success',
+        message: '🎉 Kết nối kênh YouTube thành công! Bạn có thể xem số liệu và tự động đăng video Shorts.'
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleConnectYoutube = async () => {
+    try {
+      const res = await axios.get('/api/auth/youtube/url');
+      if (res.data?.authUrl) {
+        window.location.href = res.data.authUrl;
+      }
+    } catch (err) {
+      alert('Lỗi tạo liên kết xác thực YouTube: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handleUploadToYoutube = async () => {
+    if (!renderedResult?.videoUrl) {
+      alert('Chưa có video render xong để đăng!');
+      return;
+    }
+    setIsUploadingYoutube(true);
+    setYoutubeUploadedVideo(null);
+    try {
+      const title = currentStory?.title || 'Inspirational Storybook Fable';
+      const desc = currentStory?.summary || 'A meaningful life lesson storybook animation.';
+      const res = await axios.post('/api/youtube/upload-shorts', {
+        videoUrl: renderedResult.videoUrl,
+        title,
+        description: desc,
+        tags: ['Fable', 'Story', 'Philosophy', 'Shorts', 'LifeLessons'],
+        privacyStatus: 'public'
+      });
+      if (res.data?.success) {
+        setYoutubeUploadedVideo(res.data);
+        setNotification({
+          type: 'success',
+          message: `🚀 Đã đăng video thành công lên kênh YouTube Shorts! Video ID: ${res.data.videoId}`
+        });
+        fetchYoutubeChannel();
+      }
+    } catch (err) {
+      console.error('Lỗi upload video:', err);
+      alert('Lỗi đăng video lên YouTube: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setIsUploadingYoutube(false);
+    }
+  };
+
   // 1-Click Video Render States
   const [videoImageFile, setVideoImageFile] = useState(null);
   const [videoImagePreview, setVideoImagePreview] = useState(null);
