@@ -764,11 +764,12 @@ export default function FacebookAnalyticsTab({ onNavigate }) {
                           </p>
 
                           <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/60 dark:border-slate-800/80">
-                            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold">
                               <span>Lượt xem: <b>{post.views || 0}</b></span>
-                              <span>Lượt tương tác: <b className="text-blue-600 dark:text-blue-400 font-bold">{post.engagement || post.likesCount || 0}</b></span>
+                              <span>Thích: <b className="text-blue-600 dark:text-blue-400 font-bold">{post.likesCount || 0}</b></span>
                               <span>Bình luận: <b>{post.commentsCount || 0}</b></span>
                               <span>Chia sẻ: <b>{post.sharesCount || 0}</b></span>
+                              <span>Lượt tương tác: <b className="text-emerald-600 dark:text-emerald-400 font-bold">{post.engagement || post.likesCount || 0}</b></span>
                             </div>
 
                             {post.permalink_url && (
@@ -870,11 +871,12 @@ export default function FacebookAnalyticsTab({ onNavigate }) {
                   </p>
 
                   <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/60 dark:border-slate-800/80">
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-600 dark:text-slate-300 font-semibold">
                       <span>Lượt xem: <b>{post.views || 0}</b></span>
-                      <span>Lượt tương tác: <b className="text-blue-600 dark:text-blue-400 font-bold">{post.engagement || post.likesCount || 0}</b></span>
+                      <span>Thích: <b className="text-blue-600 dark:text-blue-400 font-bold">{post.likesCount || 0}</b></span>
                       <span>Bình luận: <b>{post.commentsCount || 0}</b></span>
                       <span>Chia sẻ: <b>{post.sharesCount || 0}</b></span>
+                      <span>Lượt tương tác: <b className="text-emerald-600 dark:text-emerald-400 font-bold">{post.engagement || post.likesCount || 0}</b></span>
                     </div>
 
                     {post.permalink_url && (
