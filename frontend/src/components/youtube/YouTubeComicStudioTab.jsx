@@ -38,7 +38,8 @@ import {
   Eye,
   Video,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 
 // Thư viện các câu chuyện ngụ ngôn mẫu chuẩn
@@ -301,14 +302,8 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
   const [topicInput, setTopicInput] = useState('');
   const [storyLanguage, setStoryLanguage] = useState('vi'); // 'vi' (Tiếng Việt) | 'en' (Tiếng Anh)
   const [generating, setGenerating] = useState(false);
-  const [currentStory, setCurrentStory] = useState(() => {
-    try {
-      const saved = localStorage.getItem('socialhub_last_comic_story');
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    // Mặc định chọn THE PALE BLUE SPARK (Orion & Jax)
-    return CURATED_FABLES[2] || CURATED_FABLES[0];
-  });
+  // Mặc định để trống kịch bản khi load trang để giao diện sạch sẽ, không gây hiểu lầm
+  const [currentStory, setCurrentStory] = useState(null);
   const [isScanningImage, setIsScanningImage] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
   const [notification, setNotification] = useState(null);
@@ -332,6 +327,9 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
   };
 
   useEffect(() => {
+    try {
+      localStorage.removeItem('socialhub_last_comic_story');
+    } catch {}
     fetchYoutubeChannel();
 
     // Kiểm tra nếu redirect từ Google OAuth callback về có query ?youtube_connected=true
@@ -728,9 +726,6 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
       if (res.data?.success && res.data.story) {
         const scanned = res.data.story;
         setCurrentStory(scanned);
-        try {
-          localStorage.setItem('socialhub_last_comic_story', JSON.stringify(scanned));
-        } catch {}
         const list = buildStoryDialogues(scanned, ttsLanguage);
         setEditableDialogues(list);
         setNotification({
@@ -1364,6 +1359,20 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       <FileText className="w-4 h-4" />
                       <span>Copy Sang Web Chatbot</span>
                     </button>
+
+                    <button
+                      onClick={() => {
+                        setCurrentStory(null);
+                        setTopicInput('');
+                        setNotification(null);
+                        try { localStorage.removeItem('socialhub_last_comic_story'); } catch {}
+                      }}
+                      className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 hover:text-red-500 text-slate-500 dark:text-slate-400 font-bold text-xs transition flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer"
+                      title="Xoá kịch bản hiện tại để bảng trống"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Để Trống</span>
+                    </button>
                   </div>
                 </div>
 
@@ -1707,9 +1716,14 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     </div>
 
                     <select
-                      value={currentStory?.id || currentStory?.title || 'fable_pale_blue_spark'}
+                      value={currentStory?.id || currentStory?.title || ''}
                       onChange={(e) => {
                         const val = e.target.value;
+                        if (!val) {
+                          setCurrentStory(null);
+                          setEditableDialogues([]);
+                          return;
+                        }
                         const found = CURATED_FABLES.find(f => f.id === val);
                         if (found) {
                           setCurrentStory(found);
@@ -1718,6 +1732,7 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       }}
                       className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                     >
+                      <option value="">-- Tự động nhận diện lời thoại từ ảnh hoặc chọn kịch bản mẫu --</option>
                       <optgroup label="🚀 KHO TRUYỆN MẪU CHUẨN">
                         {CURATED_FABLES.map((f) => (
                           <option key={f.id} value={f.id}>
