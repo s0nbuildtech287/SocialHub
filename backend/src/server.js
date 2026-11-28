@@ -135,6 +135,10 @@ app.get('/api/status', async (req, res) => {
     }
   }
 
+  const allChannels = db.getChannels();
+  const ytChannels = allChannels.filter(c => c.platform === 'youtube');
+  const activeYt = ytChannels.find(c => c.isActive) || ytChannels[0] || null;
+
   res.json({
     activeChannel: active,
     channelData,
@@ -143,7 +147,9 @@ app.get('/api/status', async (req, res) => {
     gemini: {
       hasKey: Boolean(settings.geminiApiKey)
     },
-    channels: db.getChannels()
+    channels: allChannels,
+    youtubeChannels: ytChannels,
+    activeYoutubeChannel: activeYt
   });
 });
 
@@ -576,8 +582,32 @@ app.get('/api/auth/youtube/callback', async (req, res) => {
 // 5.9 YouTube: Lấy thông tin kênh và số liệu analytics gần nhất
 app.get('/api/youtube/channel', async (req, res) => {
   try {
-    const data = await getYoutubeChannelData();
-    res.json({ success: true, data });
+    const { channelId } = req.query;
+    const data = await getYoutubeChannelData(channelId);
+    const ytChannels = db.getYoutubeChannels ? db.getYoutubeChannels() : db.getChannels().filter(c => c.platform === 'youtube');
+    const activeYt = db.getActiveYoutubeChannel ? db.getActiveYoutubeChannel() : ytChannels.find(c => c.isActive) || ytChannels[0];
+    res.json({ 
+      success: true, 
+      data, 
+      channels: ytChannels,
+      activeChannel: activeYt
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5.9.1 YouTube: Chuyển đổi kênh YouTube đang kích hoạt
+app.post('/api/youtube/channel/active', async (req, res) => {
+  try {
+    const { channelId } = req.body;
+    const updated = db.setActiveYoutubeChannel ? db.setActiveYoutubeChannel(channelId) : db.setActiveChannel(channelId);
+    const data = await getYoutubeChannelData(channelId);
+    res.json({ 
+      success: true, 
+      activeChannel: updated,
+      data
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

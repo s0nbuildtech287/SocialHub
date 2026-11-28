@@ -17,29 +17,66 @@ import {
   Music2,
   MessageSquare,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ChevronDown,
+  PlusCircle
 } from 'lucide-react';
 
-export default function YouTubeChannelHubTab({ onNavigate }) {
+export default function YouTubeChannelHubTab({ 
+  status, 
+  onNavigate, 
+  onSwitchYoutubeChannel, 
+  onConnectNewYoutube, 
+  onRefreshStatus 
+}) {
   const [channel, setChannel] = useState(null);
+  const [allYtChannels, setAllYtChannels] = useState([]);
+  const [channelDropdownOpen, setChannelDropdownOpen] = useState(false);
   const [recentVideos, setRecentVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notification, setNotification] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
 
-  const fetchChannelData = async () => {
+  const fetchChannelData = async (targetId = null) => {
     try {
       setRefreshing(true);
-      const res = await axios.get('/api/youtube/channel');
+      const url = targetId ? `/api/youtube/channel?channelId=${targetId}` : '/api/youtube/channel';
+      const res = await axios.get(url);
       if (res.data?.success && res.data.data) {
         setChannel(res.data.data.channel);
         setRecentVideos(res.data.data.recentVideos || []);
+        if (res.data.channels) {
+          setAllYtChannels(res.data.channels);
+        }
       }
     } catch (err) {
       console.log('Chưa kết nối YouTube hoặc lỗi lấy dữ liệu:', err.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleSwitchChannel = async (channelId) => {
+    try {
+      setRefreshing(true);
+      await axios.post('/api/youtube/channel/active', { channelId });
+      if (onSwitchYoutubeChannel) {
+        onSwitchYoutubeChannel(channelId);
+      }
+      if (onRefreshStatus) {
+        onRefreshStatus();
+      }
+      await fetchChannelData(channelId);
+      setChannelDropdownOpen(false);
+      setNotification({
+        type: 'success',
+        message: 'Đã chuyển đổi kênh thành công!'
+      });
+    } catch (err) {
+      alert('Lỗi chuyển đổi kênh: ' + err.message);
+    } finally {
       setRefreshing(false);
     }
   };
@@ -196,14 +233,60 @@ export default function YouTubeChannelHubTab({ onNavigate }) {
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 max-w-sm">
-              <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Trạng thái kết nối Google Cloud:</span>
-              </div>
-              <p className="text-[11px] leading-relaxed">
-                Tokens tự động gia hạn (Refresh Token). Hỗ trợ upload Shorts Full HD và tự động đồng bộ thống kê.
-              </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              {/* DROPDOWN CHUYỂN ĐỔI KÊNH */}
+              {allYtChannels && allYtChannels.length > 1 && (
+                <div className="relative">
+                  <button
+                    onClick={() => setChannelDropdownOpen(!channelDropdownOpen)}
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center justify-between gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer shadow-xs"
+                  >
+                    <span>Kênh: {channel.title}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                  </button>
+
+                  {channelDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setChannelDropdownOpen(false)} />
+                      <div className="absolute right-0 top-full mt-1.5 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-2 z-40 space-y-1 animate-fadeIn">
+                        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2 py-1">
+                          Chuyển Kênh YouTube ({allYtChannels.length})
+                        </div>
+                        {allYtChannels.map((c) => {
+                          const isCur = c.name === channel.title || c.id === channel.id;
+                          return (
+                            <button
+                              key={c.id || c.channelId}
+                              onClick={() => handleSwitchChannel(c.id || c.channelId)}
+                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs text-left transition cursor-pointer ${
+                                isCur
+                                  ? 'bg-red-500/10 text-red-600 dark:text-red-400 font-bold border border-red-500/30'
+                                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              }`}
+                            >
+                              <div className="w-4 h-4 rounded bg-red-600 text-white flex items-center justify-center text-[8px] font-bold shrink-0">
+                                <Youtube className="w-2.5 h-2.5" />
+                              </div>
+                              <span className="truncate flex-1">{c.name}</span>
+                              {isCur && <CheckCircle2 className="w-3.5 h-3.5 text-red-500 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* NÚT THÊM KÊNH MỚI */}
+              <button
+                onClick={onConnectNewYoutube || handleConnect}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border border-slate-700"
+                title="Đăng nhập tài khoản Google để liên kết thêm kênh YouTube khác"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-red-400" />
+                <span>+ Thêm Kênh Khác</span>
+              </button>
             </div>
           </div>
 

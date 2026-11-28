@@ -10,6 +10,8 @@ export default function AppShell({
   onNavigate, 
   status, 
   onSwitchChannel, 
+  onSwitchYoutubeChannel,
+  onConnectNewYoutube,
   children 
 }) {
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -55,6 +57,8 @@ export default function AppShell({
             onNavigate={onNavigate}
             status={status}
             onSwitchChannel={onSwitchChannel}
+            onSwitchYoutubeChannel={onSwitchYoutubeChannel}
+            onConnectNewYoutube={onConnectNewYoutube}
             isCollapsed={isCollapsed}
             onToggleCollapse={handleToggleCollapse}
             mobileOpen={mobileOpen}

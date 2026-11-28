@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { PLATFORM_REGISTRY } from '../../config/platformRegistry';
 import ChannelSwitcher from './ChannelSwitcher';
+import YouTubeChannelSwitcher from './YouTubeChannelSwitcher';
 import Logo from '../common/Logo';
 
 const ICON_MAP = {
@@ -52,6 +53,8 @@ export default function Sidebar({
   onNavigate, 
   status, 
   onSwitchChannel,
+  onSwitchYoutubeChannel,
+  onConnectNewYoutube,
   isCollapsed,
   onToggleCollapse,
   mobileOpen,
@@ -59,7 +62,7 @@ export default function Sidebar({
 }) {
   const [platformOpen, setPlatformOpen] = useState({
     facebook: true,
-    youtube: false,
+    youtube: true,
     tiktok: false
   });
 
@@ -207,6 +210,17 @@ export default function Sidebar({
                           status={status}
                           onSwitchChannel={onSwitchChannel}
                           onNavigateSettings={() => handleItemClick('settings')}
+                          isCollapsed={isCollapsed}
+                        />
+                      )}
+
+                      {/* Đặt Channel Switcher riêng cho YouTube ngay trong mục YouTube */}
+                      {plat.id === 'youtube' && (
+                        <YouTubeChannelSwitcher
+                          youtubeChannels={status?.youtubeChannels || []}
+                          activeYoutubeChannel={status?.activeYoutubeChannel}
+                          onSwitchYoutubeChannel={onSwitchYoutubeChannel}
+                          onConnectNew={onConnectNewYoutube}
                           isCollapsed={isCollapsed}
                         />
                       )}

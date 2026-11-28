@@ -131,10 +131,10 @@ export async function uploadYoutubeShorts({ filePath, title, description, tags =
 }
 
 export async function getYoutubeChannelData(channelId = null) {
-  const channels = db.getChannels();
+  const channels = db.getYoutubeChannels ? db.getYoutubeChannels() : db.getChannels().filter(c => c.platform === 'youtube');
   const ytChannel = channelId 
-    ? channels.find(c => c.platform === 'youtube' && (c.id === channelId || c.channelId === channelId))
-    : channels.find(c => c.platform === 'youtube');
+    ? channels.find(c => c.id === channelId || c.channelId === channelId)
+    : (db.getActiveYoutubeChannel ? db.getActiveYoutubeChannel() : channels.find(c => c.isActive) || channels[0]);
 
   if (!ytChannel || !ytChannel.tokens) return null;
 

@@ -43,6 +43,26 @@ export default function App() {
     }
   };
 
+  const handleSwitchYoutubeChannel = async (channelId) => {
+    try {
+      await axios.post('/api/youtube/channel/active', { channelId });
+      fetchStatus();
+    } catch (err) {
+      console.error('Lỗi chuyển kênh YouTube:', err);
+    }
+  };
+
+  const handleConnectNewYoutube = async () => {
+    try {
+      const res = await axios.get('/api/auth/youtube/url');
+      if (res.data?.authUrl) {
+        window.location.href = res.data.authUrl;
+      }
+    } catch (err) {
+      alert('Lỗi khởi tạo liên kết Google OAuth: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
   const handleUseIdea = (ideaData) => {
     setPrefill(ideaData);
     setCurrentRoute('facebook-composer');
@@ -85,6 +105,8 @@ export default function App() {
       onNavigate={(routeId) => setCurrentRoute(routeId)}
       status={status}
       onSwitchChannel={handleSwitchChannel}
+      onSwitchYoutubeChannel={handleSwitchYoutubeChannel}
+      onConnectNewYoutube={handleConnectNewYoutube}
     >
       {/* 1. Tổng quan */}
       {currentRoute === 'dashboard' && (
@@ -156,7 +178,13 @@ export default function App() {
 
       {/* 5.2 YouTube: Trung Tâm Kênh & Thống Kê Tổng Hợp */}
       {(currentRoute === 'youtube-channel' || currentRoute === 'youtube-shorts') && (
-        <YouTubeChannelHubTab onNavigate={(routeId) => setCurrentRoute(routeId)} />
+        <YouTubeChannelHubTab 
+          status={status}
+          onNavigate={(routeId) => setCurrentRoute(routeId)}
+          onSwitchYoutubeChannel={handleSwitchYoutubeChannel}
+          onConnectNewYoutube={handleConnectNewYoutube}
+          onRefreshStatus={fetchStatus}
+        />
       )}
 
       {/* 5.3 YouTube: Xưởng Truyện Tranh Shorts AI */}

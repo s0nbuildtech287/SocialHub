@@ -105,11 +105,33 @@ export const db = {
   },
   setActiveChannel: (channelId) => {
     const channels = initDefaultChannels();
+    const target = channels.find((c) => c.id === channelId || c.pageId === channelId || c.channelId === channelId);
+    const targetPlatform = target?.platform || 'facebook';
     channels.forEach((c) => {
-      c.isActive = c.id === channelId;
+      if (c.platform === targetPlatform) {
+        c.isActive = (c.id === channelId || c.pageId === channelId || c.channelId === channelId);
+      }
     });
     writeFile(channelsFile, channels);
-    return channels.find((c) => c.isActive);
+    return channels.find((c) => c.platform === targetPlatform && c.isActive);
+  },
+  getActiveYoutubeChannel: () => {
+    const channels = initDefaultChannels();
+    return channels.find((c) => c.platform === 'youtube' && c.isActive) || channels.find((c) => c.platform === 'youtube');
+  },
+  setActiveYoutubeChannel: (channelId) => {
+    const channels = initDefaultChannels();
+    channels.forEach((c) => {
+      if (c.platform === 'youtube') {
+        c.isActive = (c.id === channelId || c.channelId === channelId);
+      }
+    });
+    writeFile(channelsFile, channels);
+    return channels.find((c) => c.platform === 'youtube' && c.isActive);
+  },
+  getYoutubeChannels: () => {
+    const channels = initDefaultChannels();
+    return channels.filter((c) => c.platform === 'youtube');
   },
   addOrUpdateChannel: (channelData) => {
     const channels = initDefaultChannels();
