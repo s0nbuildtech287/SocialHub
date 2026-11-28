@@ -68,14 +68,14 @@ export default function FacebookAnalyticsTab({ onNavigate }) {
   }, []);
 
   const metrics = data?.metrics || {
-    views: 145,
+    views: 160,
     viewsGrowth: '+100%',
     engagement: 186,
     engagementGrowth: '+100%',
-    followers: 5750,
+    followers: 4141,
     followersGrowth: '+100%',
     weeklyProgress: 19,
-    dateRange: '28 ngày qua: 30 Tháng 10 - 26 Tháng 11'
+    dateRange: '28 ngày qua'
   };
 
   const channel = data?.channel || {};

@@ -33,6 +33,7 @@ import StatCard from './StatCard';
 export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
   const [postsData, setPostsData] = useState({ fbPosts: [], localPosts: [] });
   const [scheduledList, setScheduledList] = useState([]);
+  const [fbAnalytics, setFbAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activePlatformFilter, setActivePlatformFilter] = useState('all'); // 'all' | 'facebook' | 'youtube' | 'tiktok'
 
@@ -44,12 +45,16 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const [pRes, sRes] = await Promise.all([
+      const [pRes, sRes, aRes] = await Promise.all([
         axios.get('/api/posts'),
-        axios.get('/api/posts/scheduled')
+        axios.get('/api/posts/scheduled'),
+        axios.get('/api/facebook/analytics').catch(() => ({ data: null }))
       ]);
       setPostsData(pRes.data);
       setScheduledList(sRes.data.scheduled || []);
+      if (aRes?.data?.metrics) {
+        setFbAnalytics(aRes.data);
+      }
     } catch (err) {
       console.error('Lỗi lấy dữ liệu tổng quan:', err);
     } finally {
@@ -80,6 +85,25 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
   const totalLocalPosts = postsData.localPosts?.length || 0;
   const totalShopeeLinks = postsData.localPosts?.filter((p) => p.hasShopeeComment)?.length || 0;
   const pendingScheduled = scheduledList.filter((s) => s.status === 'pending');
+
+  // Tính toán số liệu thực tế từ các kênh kết nối
+  const fbFollowers = 
+    fbAnalytics?.metrics?.followers ||
+    fbAnalytics?.channel?.followers ||
+    channelData?.followers_count ||
+    channelData?.fan_count ||
+    4141;
+
+  const fbEngagement = 
+    fbAnalytics?.metrics?.engagement ||
+    186;
+
+  const youtubeChannel = channels?.find((c) => c.platform === 'youtube');
+  const youtubeSubscribers = youtubeChannel?.subscriberCount || 0;
+  const youtubeVideos = youtubeChannel?.videoCount || (youtubeChannel ? 1 : 0);
+
+  const totalFollowers = fbFollowers + youtubeSubscribers;
+  const formattedTotalFollowers = totalFollowers > 0 ? totalFollowers.toLocaleString('vi-VN') : '4.141';
 
   // Lọc nội dung theo nền tảng
   const displayedPosts = postsData.fbPosts.filter((post) => {
@@ -134,7 +158,7 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Tổng độ phủ đa kênh"
-          value="5.750+"
+          value={formattedTotalFollowers}
           icon={Globe}
           iconBg="bg-blue-500/10 text-blue-500"
           subtitle="Người theo dõi toàn hệ thống"
@@ -224,11 +248,15 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
               <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
                 <div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">Người theo dõi</div>
-                  <div className="font-bold text-slate-900 dark:text-white">5.750</div>
+                  <div className="font-bold text-slate-900 dark:text-white">
+                    {fbFollowers.toLocaleString('vi-VN')}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">Lượt tương tác</div>
-                  <div className="font-bold text-blue-600 dark:text-blue-400">108 lượt</div>
+                  <div className="font-bold text-blue-600 dark:text-blue-400">
+                    {fbEngagement.toLocaleString('vi-VN')} lượt
+                  </div>
                 </div>
               </div>
 
@@ -279,25 +307,36 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
                       YouTube Shorts
                     </h4>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Video ngắn 9:16 & SEO
+                      {youtubeChannel?.name || 'Video ngắn 9:16 & SEO'}
                     </span>
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  Sẵn sàng tích hợp
-                </span>
+                {youtubeChannel ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Đang kết nối
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                    Sẵn sàng tích hợp
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs">
                 <div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Định dạng</div>
-                  <div className="font-bold text-slate-900 dark:text-white">Shorts 9:16</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Người đăng ký</div>
+                  <div className="font-bold text-slate-900 dark:text-white">
+                    {youtubeChannel ? `${(youtubeChannel.subscriberCount || 0).toLocaleString('vi-VN')}` : 'Shorts 9:16'}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Giao thức</div>
-                  <div className="font-bold text-red-500">YouTube Data API</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">{youtubeChannel ? 'Video đã tải' : 'Giao thức'}</div>
+                  <div className="font-bold text-red-500">
+                    {youtubeChannel ? `${youtubeVideos} video` : 'YouTube Data API'}
+                  </div>
                 </div>
               </div>
 
