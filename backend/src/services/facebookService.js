@@ -34,73 +34,49 @@ export async function fetchUserPages(userToken) {
   return res.data.data || [];
 }
 
-// Lấy danh sách nội dung (Bài viết + Tin Story 24h) của Page
-export async function getRecentPosts(pageId, pageToken, limit = 15) {
+// Lấy danh sách nội dung (Bài viết + Tin Story 24h + Thước phim Reel) của Page
+export async function getRecentPosts(pageId, pageToken, limit = 20) {
   if (!pageToken || !pageId) return [];
 
   let posts = [];
   let stories = [];
+  let reels = [];
 
-  // 1. Gọi /{pageId}/posts lấy các bài viết chính trên Dòng thời gian kèm attachments để lấy số like/cmt realtime
+  // 1. Gọi /{pageId}/published_posts để chỉ lấy các bài viết ĐANG CÔNG KHAI trên Page (không lấy bài đã xóa / bài nháp)
   try {
-    const res = await axios.get(`${FB_GRAPH_URL}/${pageId}/posts`, {
+    const res = await axios.get(`${FB_GRAPH_URL}/${pageId}/published_posts`, {
       params: {
-        fields: 'id,message,created_time,full_picture,permalink_url,shares,attachments',
+        fields: 'id,message,created_time,full_picture,permalink_url,shares,attachments{media_type,type,url,target,title}',
         limit,
         access_token: pageToken
       }
     });
 
     const rawPosts = res.data.data || [];
-    posts = await Promise.all(
-      rawPosts.map(async (post) => {
-        let liveLikes = 0;
-        let liveComments = 0;
-        const sharesCount = post.shares?.count || 0;
-
-        // Bóc tách target ID của attachment (ảnh đính kèm bài viết) để lấy số like thực tế từ Photo node
-        const targetId = post.attachments?.data?.[0]?.target?.id;
-        const queryId = targetId || post.id;
-
-        try {
-          const engRes = await axios.get(`${FB_GRAPH_URL}/${queryId}`, {
-            params: {
-              fields: 'likes.summary(true),comments.summary(true)',
-              access_token: pageToken
-            }
-          });
-          liveLikes = engRes.data.likes?.summary?.total_count ?? 0;
-          liveComments = engRes.data.comments?.summary?.total_count ?? 0;
-        } catch (engErr) {
-          console.warn(`Lỗi lấy engagement realtime của post ${post.id}:`, engErr.response?.data?.error?.message || engErr.message);
-        }
-
-        const engagement = liveLikes + liveComments + sharesCount;
-
-        return {
-          ...post,
-          type: 'post',
-          typeLabel: 'Bài viết',
-          views: 18,
-          engagement,
-          likesCount: liveLikes,
-          sharesCount,
-          commentsCount: liveComments
-        };
-      })
-    );
+    posts = rawPosts.map((post) => {
+      const sharesCount = post.shares?.count || 0;
+      return {
+        ...post,
+        type: 'post',
+        typeLabel: 'Bài viết',
+        views: 0,
+        engagement: sharesCount,
+        likesCount: 0,
+        sharesCount,
+        commentsCount: 0
+      };
+    });
   } catch (err) {
-    console.warn(`Lỗi lấy posts của page ${pageId}:`, err.message);
+    console.warn(`Lỗi lấy published_posts của page ${pageId}:`, err.message);
   }
 
-  // 2. Gọi /{pageId}/stories lấy các Tin dạng ảnh 24h (Facebook Stories)
+  // 2. Gọi /{pageId}/stories lấy các Tin Story 24h ĐANG CÒN HIỆU LỰC
   try {
     const storyRes = await axios.get(`${FB_GRAPH_URL}/${pageId}/stories`, {
       params: { access_token: pageToken }
     });
     const rawStories = storyRes.data.data || [];
 
-    // Gọi song song để lấy URL ảnh CDN thực tế của từng Story từ media_id thay vì web link permalink
     stories = await Promise.all(
       rawStories.map(async (s) => {
         let imageUrl = null;
@@ -121,7 +97,7 @@ export async function getRecentPosts(pageId, pageToken, limit = 15) {
         return {
           id: s.post_id || s.media_id,
           type: 'story',
-          typeLabel: 'Tin dạng ảnh',
+          typeLabel: 'Tin 24h Story',
           message: 'Tin dạng ảnh 24h (Facebook Story)',
           full_picture: imageUrl,
           permalink_url: s.url || `https://facebook.com/${pageId}`,
@@ -138,30 +114,18 @@ export async function getRecentPosts(pageId, pageToken, limit = 15) {
     console.warn(`Lỗi lấy stories của page ${pageId}:`, err.message);
   }
 
-  // 3. Gọi /{pageId}/video_reels và /{pageId}/videos lấy Thước phim Reel & Video
-  let reels = [];
+  // 3. Gọi /{pageId}/video_reels lấy Thước phim Reel (CHỈ lấy từ video_reels thực tế, KHÔNG lấy video cũ trong thư viện)
   try {
-    const [reelsRes, videosRes] = await Promise.all([
-      axios.get(`${FB_GRAPH_URL}/${pageId}/video_reels`, {
-        params: {
-          fields: 'id,description,created_time,thumbnails,permalink_url',
-          limit: 10,
-          access_token: pageToken
-        }
-      }).catch(() => ({ data: { data: [] } })),
-      axios.get(`${FB_GRAPH_URL}/${pageId}/videos`, {
-        params: {
-          fields: 'id,description,created_time,picture,permalink_url,views,likes.summary(true),comments.summary(true)',
-          limit: 10,
-          access_token: pageToken
-        }
-      }).catch(() => ({ data: { data: [] } }))
-    ]);
+    const reelsRes = await axios.get(`${FB_GRAPH_URL}/${pageId}/video_reels`, {
+      params: {
+        fields: 'id,description,created_time,thumbnails,permalink_url',
+        limit: 10,
+        access_token: pageToken
+      }
+    });
 
     const rawReels = reelsRes.data?.data || [];
-    const rawVideos = videosRes.data?.data || [];
-
-    const mappedReels = rawReels.map(r => ({
+    reels = rawReels.map(r => ({
       id: r.id,
       type: 'reel',
       typeLabel: 'Thước phim Reel',
@@ -175,33 +139,13 @@ export async function getRecentPosts(pageId, pageToken, limit = 15) {
       sharesCount: 0,
       commentsCount: 0
     }));
-
-    const existingIds = new Set(mappedReels.map(r => r.id));
-    const mappedVideos = rawVideos
-      .filter(v => !existingIds.has(v.id))
-      .map(v => ({
-        id: v.id,
-        type: 'reel',
-        typeLabel: 'Thước phim Reel',
-        message: v.description || '(Video ngắn Facebook)',
-        full_picture: v.picture || null,
-        permalink_url: v.permalink_url ? (v.permalink_url.startsWith('http') ? v.permalink_url : `https://facebook.com${v.permalink_url}`) : `https://facebook.com/${pageId}`,
-        created_time: v.created_time || new Date().toISOString(),
-        views: v.views || 0,
-        engagement: (v.likes?.summary?.total_count || 0) + (v.comments?.summary?.total_count || 0),
-        likesCount: v.likes?.summary?.total_count || 0,
-        sharesCount: 0,
-        commentsCount: v.comments?.summary?.total_count || 0
-      }));
-
-    reels = [...mappedReels, ...mappedVideos];
   } catch (err) {
     console.warn(`Lỗi lấy reels của page ${pageId}:`, err.message);
   }
 
-  // Kết hợp cả bài viết, Tin dạng ảnh và Thước phim Reel, sắp xếp theo thời gian mới nhất
+  // Kết hợp và lọc theo thời gian mới nhất
   const combined = [...stories, ...reels, ...posts].sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
-  return combined.length > 0 ? combined : posts;
+  return combined;
 }
 
 // Đăng bài linh hoạt lên Facebook Page bất kỳ + ghim link Shopee/Affiliate
