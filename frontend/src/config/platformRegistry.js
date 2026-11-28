@@ -112,16 +112,16 @@ export const PLATFORM_REGISTRY = {
         },
         { 
           id: 'youtube-shorts', 
-          label: 'Auto Đăng Shorts', 
-          icon: 'Video', 
-          badge: 'Sắp có', 
-          status: 'soon',
+          label: 'Kênh & Data Người Xem', 
+          icon: 'BarChart3', 
+          badge: 'Mới', 
+          status: 'active',
           platform: 'youtube',
-          description: 'Tự động xuất bản video ngắn lên YouTube Shorts thông qua YouTube Data API v3.',
+          description: 'Quản lý kênh YouTube, theo dõi số người đăng ký, tổng lượt xem và thống kê video Shorts.',
           features: [
-            'Tối ưu hóa thẻ Tags, Title và SEO mô tả video bằng AI',
-            'Chọn khung hình đẹp nhất làm Thumbnail',
-            'Đồng bộ video tự động từ kho nội dung Facebook/TikTok'
+            'Xem số người đăng ký (Subscribers) và tổng lượt xem toàn kênh',
+            'Danh sách video Shorts đã xuất bản kèm link xem trực tiếp',
+            'Đăng video Shorts 1-Click tự động qua YouTube Data API v3'
           ]
         }
       ]

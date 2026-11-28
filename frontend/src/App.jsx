@@ -153,9 +153,9 @@ export default function App() {
         />
       )}
 
-      {/* 5.2 YouTube: Xưởng Truyện Tranh Shorts AI */}
+      {/* 5.2 YouTube: Xưởng Truyện Tranh Shorts AI & Analytics */}
       {(currentRoute === 'youtube-comic-studio' || currentRoute === 'youtube-shorts') && (
-        <YouTubeComicStudioTab />
+        <YouTubeComicStudioTab initialTab={currentRoute === 'youtube-shorts' ? 'analytics' : 'generator'} />
       )}
 
       {/* 6. Quản lý Kênh & Token */}

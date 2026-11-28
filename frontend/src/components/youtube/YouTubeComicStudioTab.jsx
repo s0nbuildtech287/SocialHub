@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Youtube, 
@@ -296,8 +296,14 @@ const VOICE_CATALOG = [
   }
 ];
 
-export default function YouTubeComicStudioTab() {
-  const [activeTab, setActiveTab] = useState('generator'); // 'generator' | 'video-maker' | 'library' | 'music-guide'
+export default function YouTubeComicStudioTab({ initialTab = 'generator' }) {
+  const [activeTab, setActiveTab] = useState(initialTab); // 'generator' | 'video-maker' | 'library' | 'music-guide' | 'analytics'
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
   const [topicInput, setTopicInput] = useState('');
   const [storyLanguage, setStoryLanguage] = useState('vi'); // 'vi' (Tiếng Việt) | 'en' (Tiếng Anh)
   const [generating, setGenerating] = useState(false);
@@ -914,6 +920,20 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
               {copiedKey === 'master_prompt' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               <span>{copiedKey === 'master_prompt' ? 'Đã copy Prompt Kịch Bản!' : 'Copy Prompt Kịch Bản'}</span>
             </button>
+
+            {/* NÚT THỐNG KÊ & KẾT NỐI KÊNH YOUTUBE */}
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md transition cursor-pointer ${
+                youtubeChannel
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-red-600 hover:bg-red-500 text-white shadow-red-500/20'
+              }`}
+              title="Xem thông tin kênh và số liệu người xem"
+            >
+              <Youtube className="w-4 h-4" />
+              <span>{youtubeChannel ? `Kênh: ${youtubeChannel.title}` : '🔴 Kết Nối Kênh YouTube'}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -969,6 +989,29 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
         >
           <Music className="w-4 h-4" />
           <span>Gu Âm Nhạc BGM Viral</span>
+        </button>
+
+        {/* TAB 5: KÊNH & DATA NGƯỜI XEM */}
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`pb-2.5 px-3 transition flex items-center gap-2 shrink-0 ${
+            activeTab === 'analytics'
+              ? 'text-red-500 border-b-2 border-red-500'
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 text-red-500" />
+          <span>📈 Kênh & Data Người Xem</span>
+          {youtubeChannel ? (
+            <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold border border-emerald-500/20 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Đã kết nối</span>
+            </span>
+          ) : (
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-500 text-[10px] font-bold">
+              Chưa kết nối
+            </span>
+          )}
         </button>
       </div>
 
