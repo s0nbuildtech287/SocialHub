@@ -613,28 +613,40 @@ app.post('/api/youtube/channel/active', async (req, res) => {
   }
 });
 
-// 5.10 YouTube: Đăng video Shorts 1-Click
-app.post('/api/youtube/upload-shorts', async (req, res) => {
+// 5.10 YouTube: Đăng video Shorts 1-Click (hỗ trợ cả video vừa render và file MP4 có sẵn từ máy tính)
+app.post('/api/youtube/upload-shorts', upload.single('videoFile'), async (req, res) => {
   try {
-    const { videoUrl, videoName, title, description, tags, privacyStatus } = req.body;
+    const { videoUrl, videoName, title, description, tags, privacyStatus, channelId } = req.body;
     let filePath = null;
 
-    if (videoName) {
+    if (req.file) {
+      filePath = req.file.path;
+    } else if (videoName) {
       filePath = path.join(uploadsDir, videoName);
     } else if (videoUrl) {
       filePath = path.join(uploadsDir, path.basename(videoUrl));
     }
 
     if (!filePath || !fs.existsSync(filePath)) {
-      return res.status(400).json({ error: 'Không tìm thấy file video trên server' });
+      return res.status(400).json({ error: 'Không tìm thấy file video để upload lên YouTube' });
+    }
+
+    let parsedTags = tags;
+    if (typeof tags === 'string') {
+      try {
+        parsedTags = JSON.parse(tags);
+      } catch {
+        parsedTags = tags.split(',').map((t) => t.trim());
+      }
     }
 
     const result = await uploadYoutubeShorts({
       filePath,
       title,
       description,
-      tags,
-      privacyStatus
+      tags: parsedTags,
+      privacyStatus,
+      channelId
     });
 
     res.json({ success: true, ...result });

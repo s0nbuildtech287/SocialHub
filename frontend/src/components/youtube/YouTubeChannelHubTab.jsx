@@ -19,7 +19,10 @@ import {
   Clock,
   AlertCircle,
   ChevronDown,
-  PlusCircle
+  PlusCircle,
+  UploadCloud,
+  X,
+  Loader2
 } from 'lucide-react';
 
 export default function YouTubeChannelHubTab({ 
@@ -37,6 +40,60 @@ export default function YouTubeChannelHubTab({
   const [refreshing, setRefreshing] = useState(false);
   const [notification, setNotification] = useState(null);
   const [copiedKey, setCopiedKey] = useState(null);
+
+  // Quick Upload Modal States
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [modalFile, setModalFile] = useState(null);
+  const [modalPreview, setModalPreview] = useState(null);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalDesc, setModalDesc] = useState('');
+  const [isUploadingModal, setIsUploadingModal] = useState(false);
+  const [modalSuccessResult, setModalSuccessResult] = useState(null);
+
+  const handleSelectModalFile = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setModalFile(file);
+      setModalPreview(URL.createObjectURL(file));
+      setModalSuccessResult(null);
+      if (!modalTitle) {
+        setModalTitle(file.name.replace(/\.[^/.]+$/, ''));
+      }
+    }
+  };
+
+  const handleUploadFromModal = async () => {
+    if (!modalFile) {
+      alert('Vui lòng chọn file video MP4 từ máy!');
+      return;
+    }
+    setIsUploadingModal(true);
+    setModalSuccessResult(null);
+    try {
+      const formData = new FormData();
+      formData.append('videoFile', modalFile);
+      formData.append('title', modalTitle || 'Shorts Animation');
+      formData.append('description', modalDesc || 'Uploaded via SocialHub.');
+      formData.append('tags', JSON.stringify(['Shorts', 'Fable', 'Story', 'LifeLessons']));
+      formData.append('privacyStatus', 'public');
+
+      const res = await axios.post('/api/youtube/upload-shorts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data?.success) {
+        setModalSuccessResult(res.data);
+        setNotification({
+          type: 'success',
+          message: `🚀 Video đã đăng thành công lên kênh YouTube Shorts! Video ID: ${res.data.videoId}`
+        });
+        fetchChannelData();
+      }
+    } catch (err) {
+      alert('Lỗi đăng video: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setIsUploadingModal(false);
+    }
+  };
 
   const fetchChannelData = async (targetId = null) => {
     try {
@@ -167,15 +224,25 @@ export default function YouTubeChannelHubTab({
           </button>
 
           {channel ? (
-            <a
-              href="https://studio.youtube.com"
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-red-500/20"
-            >
-              <span>Mở YouTube Studio</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsUploadModalOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-red-500/25 cursor-pointer"
+              >
+                <UploadCloud className="w-4 h-4" />
+                <span>Đăng Video Lên Kênh</span>
+              </button>
+
+              <a
+                href="https://studio.youtube.com"
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 dark:border-slate-700"
+              >
+                <span>Mở YouTube Studio</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           ) : (
             <button
               onClick={handleConnect}
@@ -555,6 +622,115 @@ export default function YouTubeChannelHubTab({
           </div>
         </div>
       </div>
+
+      {/* QUICK UPLOAD VIDEO MODAL */}
+      {isUploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-red-600 text-white">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                    Đăng Video MP4 Lên Kênh YouTube Shorts
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Kênh đích: <b className="text-red-500">{channel?.title || 'YouTube Channel'}</b>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsUploadModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  1. Chọn file video MP4 từ máy tính của bạn:
+                </label>
+                <input
+                  type="file"
+                  accept="video/mp4,video/quicktime,video/*"
+                  onChange={handleSelectModalFile}
+                  className="w-full text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer p-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700"
+                />
+
+                {modalPreview && (
+                  <div className="max-w-[160px] aspect-[9/16] rounded-xl overflow-hidden border border-red-500/40 bg-black mt-2 shadow-md">
+                    <video controls src={modalPreview} className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  2. Tiêu đề video (Tự động thêm #Shorts):
+                </label>
+                <input
+                  type="text"
+                  value={modalTitle}
+                  onChange={(e) => setModalTitle(e.target.value)}
+                  placeholder="Ví dụ: Bài học cuộc sống đắt giá..."
+                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  3. Mô tả video:
+                </label>
+                <textarea
+                  rows={2}
+                  value={modalDesc}
+                  onChange={(e) => setModalDesc(e.target.value)}
+                  placeholder="Mô tả tóm tắt nội dung..."
+                  className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
+                />
+              </div>
+
+              {modalSuccessResult ? (
+                <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between">
+                  <span className="font-bold">Đã tải lên Shorts thành công!</span>
+                  <a
+                    href={`https://www.youtube.com/shorts/${modalSuccessResult.videoId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-black underline hover:text-emerald-300 flex items-center gap-1"
+                  >
+                    <span>Xem Trên YouTube</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleUploadFromModal}
+                  disabled={isUploadingModal || !modalFile}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition shadow-md shadow-red-500/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                  {isUploadingModal ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Đang tải video lên YouTube Shorts...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>🚀 Bấm Đăng Lên Kênh YouTube Shorts Ngay</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

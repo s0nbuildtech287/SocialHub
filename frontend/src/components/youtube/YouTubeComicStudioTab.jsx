@@ -390,6 +390,64 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
     }
   };
 
+  // Ready Local Video Upload States (Dành cho video MP4 có sẵn dưới máy từ hôm qua)
+  const [readyLocalVideoFile, setReadyLocalVideoFile] = useState(null);
+  const [readyLocalVideoPreview, setReadyLocalVideoPreview] = useState(null);
+  const [readyLocalVideoTitle, setReadyLocalVideoTitle] = useState('');
+  const [readyLocalVideoDesc, setReadyLocalVideoDesc] = useState('');
+  const [isUploadingReadyVideo, setIsUploadingReadyVideo] = useState(false);
+  const [readyVideoUploadedResult, setReadyVideoUploadedResult] = useState(null);
+  const [isReadyUploadBoxOpen, setIsReadyUploadBoxOpen] = useState(false);
+
+  const handleSelectLocalVideo = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setReadyLocalVideoFile(file);
+      setReadyLocalVideoPreview(URL.createObjectURL(file));
+      setReadyVideoUploadedResult(null);
+      if (!readyLocalVideoTitle) {
+        setReadyLocalVideoTitle(currentStory?.title || file.name.replace(/\.[^/.]+$/, ''));
+      }
+      if (!readyLocalVideoDesc) {
+        setReadyLocalVideoDesc(currentStory?.summary || 'A meaningful life lesson storybook animation.');
+      }
+    }
+  };
+
+  const handleUploadLocalVideo = async () => {
+    if (!readyLocalVideoFile) {
+      alert('Vui lòng chọn file video MP4 từ máy tính trước!');
+      return;
+    }
+    setIsUploadingReadyVideo(true);
+    setReadyVideoUploadedResult(null);
+    try {
+      const formData = new FormData();
+      formData.append('videoFile', readyLocalVideoFile);
+      formData.append('title', readyLocalVideoTitle || 'Inspirational Life Lesson');
+      formData.append('description', readyLocalVideoDesc || 'Meaningful story animation.');
+      formData.append('tags', JSON.stringify(['Fable', 'Story', 'Shorts', 'LifeLessons', 'Stoic']));
+      formData.append('privacyStatus', 'public');
+
+      const res = await axios.post('/api/youtube/upload-shorts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data?.success) {
+        setReadyVideoUploadedResult(res.data);
+        setNotification({
+          type: 'success',
+          message: `🚀 Video từ máy tính đã được đăng thành công lên YouTube Shorts! Video ID: ${res.data.videoId}`
+        });
+        fetchYoutubeChannel();
+      }
+    } catch (err) {
+      console.error('Lỗi tải video lên YouTube:', err);
+      alert('Lỗi đăng video: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setIsUploadingReadyVideo(false);
+    }
+  };
+
   // 1-Click Video Render States
   const [videoImageFile, setVideoImageFile] = useState(null);
   const [videoImagePreview, setVideoImagePreview] = useState(null);
@@ -1425,6 +1483,129 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Không cần kéo keyframe thủ công trên CapCut! Hệ thống dùng <b>FFmpeg Server</b> tự động tính toán lia camera từ trên xuống dưới theo nhịp đọc của người xem, phóng to 1.35x và dừng 3 giây ở câu chốt (Bottom quote).
               </p>
+            </div>
+
+            {/* THẺ ĐĂNG NHANH VIDEO MP4 CÓ SẴN TỪ MÁY TÍNH */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-red-500/10 via-rose-500/5 to-amber-500/10 border border-red-500/30 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-red-600 text-white shadow-sm">
+                    <UploadCloud className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>Bạn đã có sẵn video MP4 dưới máy tính?</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30">
+                        Đăng Ngay Không Cần Render Lại
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Chọn trực tiếp file video MP4 từ máy (ví dụ video hôm qua) để đăng 1-click lên YouTube Shorts.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReadyUploadBoxOpen(!isReadyUploadBoxOpen)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <span>{isReadyUploadBoxOpen ? 'Thu gọn form' : 'Mở Form Đăng Video Có Sẵn'}</span>
+                  {isReadyUploadBoxOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+
+              {isReadyUploadBoxOpen && (
+                <div className="pt-3 border-t border-red-500/20 space-y-4 animate-fadeIn">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Chọn file video */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                        1. Chọn file video MP4 từ máy tính của bạn:
+                      </label>
+                      <input
+                        type="file"
+                        accept="video/mp4,video/quicktime,video/*"
+                        onChange={handleSelectLocalVideo}
+                        className="w-full text-xs text-slate-600 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700"
+                      />
+
+                      {readyLocalVideoPreview && (
+                        <div className="max-w-[180px] aspect-[9/16] rounded-xl overflow-hidden border border-red-500/40 bg-black mt-2 shadow-lg">
+                          <video
+                            controls
+                            src={readyLocalVideoPreview}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Tiêu đề & Mô tả */}
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          2. Tiêu đề video (Tự động thêm #Shorts):
+                        </label>
+                        <input
+                          type="text"
+                          value={readyLocalVideoTitle}
+                          onChange={(e) => setReadyLocalVideoTitle(e.target.value)}
+                          placeholder="Nhập tiêu đề video..."
+                          className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          3. Mô tả video:
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={readyLocalVideoDesc}
+                          onChange={(e) => setReadyLocalVideoDesc(e.target.value)}
+                          placeholder="Nhập mô tả tóm tắt..."
+                          className="w-full px-3 py-2 rounded-xl text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleUploadLocalVideo}
+                        disabled={isUploadingReadyVideo || !readyLocalVideoFile}
+                        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition shadow-md shadow-red-500/25 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                      >
+                        {isUploadingReadyVideo ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Đang tải video lên YouTube Shorts...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            <span>🚀 Đăng Video MP4 Này Lên YouTube Shorts Ngay</span>
+                          </>
+                        )}
+                      </button>
+
+                      {readyVideoUploadedResult && (
+                        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between">
+                          <span className="font-bold">Đã đăng thành công lên Shorts!</span>
+                          <a
+                            href={`https://www.youtube.com/shorts/${readyVideoUploadedResult.videoId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-black underline hover:text-emerald-300 flex items-center gap-1"
+                          >
+                            <span>Xem Video Trên YouTube</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleRenderVideo} className="space-y-6">
