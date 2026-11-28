@@ -478,7 +478,7 @@ app.post('/api/youtube/render-shorts', upload.fields([{ name: 'image', maxCount:
     const duration = parseInt(req.body.duration, 10) || 35;
     const mode = req.body.mode || 'panels';
     const includeIntro = req.body.includeIntro !== 'false' && req.body.includeIntro !== false;
-    const introDuration = parseFloat(req.body.introDuration) || 2.2;
+    const introDuration = parseFloat(req.body.introDuration) || 1.8;
     const audioMode = req.body.audioMode || 'silent'; // 'silent' | 'ai_voice' | 'custom_audio'
     const bgmPreset = req.body.bgmPreset || 'none';
     const bgmVolume = parseFloat(req.body.bgmVolume) || 0.20;

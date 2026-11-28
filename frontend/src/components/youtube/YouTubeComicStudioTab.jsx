@@ -491,7 +491,7 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
   const [videoDuration, setVideoDuration] = useState(35);
   const [renderMode, setRenderMode] = useState('panels'); // 'panels' | 'scroll'
   const [includeIntro, setIncludeIntro] = useState(true);
-  const [introDuration, setIntroDuration] = useState(2.2);
+  const [introDuration, setIntroDuration] = useState(1.8);
   
   // Audio & Voice States
   const [audioMode, setAudioMode] = useState('ai_voice'); // 'ai_voice' | 'silent' | 'custom_audio'
@@ -1856,13 +1856,13 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       />
                       <div className="flex-1 space-y-1">
                         <label htmlFor="includeIntroToggle" className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 cursor-pointer">
-                          <span>🖼️ Tự động đặt Thumbnail ảnh bìa là toàn cảnh tranh truyện</span>
+                          <span>🖼️ Giữ ảnh bìa toàn cảnh mở đầu video (1.8s)</span>
                           <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
-                            Khuyên dùng
+                            Khuyên dùng cho Shorts
                           </span>
                         </label>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                          Video sẽ bắt đầu đọc và zoom ô truyện 1 ngay lập tức khi phát (không bị chờ), đồng thời toàn cảnh trang tranh được đặt ở Frame 0 và đẩy lên YouTube làm Thumbnail bìa hoàn chỉnh!
+                          Video sẽ giữ ảnh bìa toàn cảnh 1.8 giây kèm nhạc nền du dương ở đầu video để thuật toán YouTube Shorts tự động chọn làm ảnh đại diện trên Shorts Feed & Tab Shorts, sau đó lia vào từng ô truyện!
                         </p>
                       </div>
                     </div>

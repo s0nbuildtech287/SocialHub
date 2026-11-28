@@ -116,7 +116,8 @@ def render_sync_video(config):
     include_intro = config.get('includeIntro', True)
     if isinstance(include_intro, str):
         include_intro = include_intro.lower() not in ('false', '0', 'no')
-    intro_duration = float(config.get('introDuration', 2.2))
+    intro_duration = float(config.get('introDuration', 1.8))
+    intro_sec = float(intro_duration) if (include_intro and intro_duration > 0) else 0.0
 
     img = cv2.imread(image_path)
     if img is None:
@@ -218,6 +219,13 @@ def render_sync_video(config):
             scene_durations = []
             audio_files = []
 
+            # Nếu bật mở đầu toàn cảnh: Chèn khoảng đệm im lặng tương ứng để phát nhạc nền và hiện ảnh bìa
+            if intro_sec > 0:
+                intro_clip = os.path.join(temp_dir, 'scene_intro_silence.mp3')
+                cmd_intro = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(intro_sec), '-c:a', 'libmp3lame', intro_clip]
+                subprocess.run(cmd_intro, check=True, stderr=subprocess.DEVNULL)
+                audio_files.append(intro_clip)
+
             for s_idx in range(total_scenes):
                 clip_p = os.path.join(temp_dir, f'scene_{s_idx:02d}.mp3')
                 dia = dialogues_to_use[s_idx] if s_idx < len(dialogues_to_use) else {}
@@ -279,7 +287,7 @@ def render_sync_video(config):
 
         # Mix voice and BGM if both exist
         mixed_audio = None
-        total_audio_duration = sum(scene_durations)
+        total_audio_duration = intro_sec + sum(scene_durations)
 
         if final_audio_track and bgm_file:
             mixed_audio = os.path.join(temp_dir, 'mixed_voice_bgm.aac')
@@ -332,10 +340,10 @@ def render_sync_video(config):
 
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # Ghi 2 frame ảnh bìa toàn cảnh vào Frame 0 (~0.08s) để YouTube/trình phát lấy làm Thumbnail poster
-        # mà không phải giữ lâu, khán giả bấm xem sẽ bắt đầu từ ô thoại 1 ngay lập tức
-        proc.stdin.write(cover_canvas.tobytes())
-        proc.stdin.write(cover_canvas.tobytes())
+        # Ghi các frame ảnh bìa toàn cảnh vào phần mở đầu video (1.8s) để YouTube Shorts bắt làm ảnh đại diện trên Shorts Feed & Tab Shorts
+        intro_frames_count = int(intro_sec * fps) if intro_sec > 0 else 2
+        for f in range(intro_frames_count):
+            proc.stdin.write(cover_canvas.tobytes())
 
         for s_idx, (bx, by, bw, bh) in enumerate(all_scenes):
             pad_x, pad_y = 3, 3
@@ -393,7 +401,7 @@ def render_sync_video(config):
         "outputPath": output_path,
         "thumbnailPath": thumb_path if os.path.exists(thumb_path) else None,
         "panelsCount": len(panels),
-        "totalDuration": sum(scene_durations)
+        "totalDuration": intro_sec + sum(scene_durations)
     }
 
 if __name__ == '__main__':
