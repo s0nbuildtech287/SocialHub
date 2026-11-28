@@ -66,7 +66,7 @@ export async function handleYoutubeCallback(code) {
   return channelData;
 }
 
-export async function uploadYoutubeShorts({ filePath, title, description, tags = [], privacyStatus = 'public', channelId = null }) {
+export async function uploadYoutubeShorts({ filePath, title, description, tags = [], privacyStatus = 'public', channelId = null, thumbnailPath = null }) {
   if (!fs.existsSync(filePath)) {
     throw new Error('Không tìm thấy file video để upload');
   }
@@ -120,6 +120,31 @@ export async function uploadYoutubeShorts({ filePath, title, description, tags =
   });
 
   const videoId = res.data.id;
+
+  // Tự động tải lên Thumbnail ảnh bìa tùy chỉnh nếu có
+  let resolvedThumbPath = thumbnailPath;
+  if (!resolvedThumbPath && filePath) {
+    const candidateThumb = filePath.replace(/\.[^/.]+$/, '_thumb.jpg');
+    if (fs.existsSync(candidateThumb)) {
+      resolvedThumbPath = candidateThumb;
+    }
+  }
+
+  if (resolvedThumbPath && fs.existsSync(resolvedThumbPath)) {
+    try {
+      await youtube.thumbnails.set({
+        videoId,
+        media: {
+          mimeType: 'image/jpeg',
+          body: fs.createReadStream(resolvedThumbPath)
+        }
+      });
+      console.log(`[YouTube] Đã đặt thumbnail tùy chỉnh thành công cho video ${videoId}`);
+    } catch (thumbErr) {
+      console.warn(`[YouTube] Lưu ý thumbnail API: ${thumbErr.message}. YouTube sẽ dùng Frame 0 làm ảnh bìa.`);
+    }
+  }
+
   return {
     success: true,
     videoId,

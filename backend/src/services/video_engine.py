@@ -138,13 +138,35 @@ def render_sync_video(config):
     quote_h = max(int(h * 0.08), h - quote_y)
     footer_box = (int(w * 0.03), quote_y, int(w * 0.94), quote_h)
 
-    # Nếu include_intro = True, thêm toàn cảnh ảnh gốc (Full Picture Overview) vào vị trí đầu tiên
-    intro_box = (0, 0, w, h)
-    if include_intro:
-        all_scenes = [intro_box] + panels + [footer_box]
-    else:
-        all_scenes = panels + [footer_box]
+    # all_scenes chỉ gồm các ô tranh + ô quote kết bài (không chèn cảnh chờ 2.2s để video xem được ngay)
+    all_scenes = panels + [footer_box]
     total_scenes = len(all_scenes)
+
+    # Chuẩn bị ảnh bìa toàn cảnh (Cover Thumbnail) từ ảnh tranh gốc
+    cover_max_w, cover_max_h = 1000, 1550
+    cover_scale = min(cover_max_w / w, cover_max_h / h)
+    cover_bw, cover_bh = int(w * cover_scale), int(h * cover_scale)
+    cover_resized = cv2.resize(img, (cover_bw, cover_bh), interpolation=cv2.INTER_LANCZOS4)
+    cover_bg = cv2.resize(img, (TW, TH), interpolation=cv2.INTER_LINEAR)
+    cover_bg = cv2.GaussianBlur(cover_bg, (81, 81), 0)
+    cover_bg = (cover_bg * 0.35).astype(np.uint8)
+
+    cover_bordered = cv2.copyMakeBorder(cover_resized, 6, 6, 6, 6, cv2.BORDER_CONSTANT, value=[255, 255, 255])
+    cbh, cbw, _ = cover_bordered.shape
+    cover_canvas = cover_bg.copy()
+    cpos_x, cpos_y = (TW - cbw) // 2, (TH - cbh) // 2
+    cdst_y1 = max(0, cpos_y)
+    cdst_x1 = max(0, cpos_x)
+    cdst_y2 = min(TH, cpos_y + cbh)
+    cdst_x2 = min(TW, cpos_x + cbw)
+    cover_canvas[cdst_y1:cdst_y2, cdst_x1:cdst_x2] = cover_bordered[0:cdst_y2-cdst_y1, 0:cdst_x2-cdst_x1]
+
+    # Lưu file thumbnail ảnh bìa độc lập để YouTube API set thumbnail hoặc người dùng tải về
+    thumb_path = os.path.splitext(output_path)[0] + "_thumb.jpg"
+    try:
+        cv2.imwrite(thumb_path, cover_canvas, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+    except Exception as te:
+        print(f"Warning: could not save thumb_path: {te}", file=sys.stderr)
 
     temp_dir = os.path.join(os.path.dirname(output_path), f"temp_sync_{int(np.random.randint(100000, 999999))}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -154,8 +176,7 @@ def render_sync_video(config):
     try:
         # 1. PROCESS AUDIO
         if audio_mode == 'ai_voice' and edge_tts is not None:
-            # Map dialogues to panels
-            num_dialogue_scenes = len(panels) + 1  # panels + footer
+            # If panel_dialogues is empty or smaller than scenes, auto-fallback to meaningful dialogue
             if not panel_dialogues or len(panel_dialogues) == 0:
                 is_vi = any('vi-VN' in str(v) for v in voice_cast.values())
                 if is_vi:
@@ -188,29 +209,18 @@ def render_sync_video(config):
                     ]
                 dialogues_to_use = [
                     {"speaker": default_texts[i % len(default_texts)][0], "text": default_texts[i % len(default_texts)][1]}
-                    for i in range(num_dialogue_scenes)
+                    for i in range(total_scenes)
                 ]
             else:
                 dialogues_to_use = panel_dialogues
 
-            # Generate per-scene TTS audio
+            # Generate per-scene TTS audio (khớp 1-1 với từng ô truyện và quote)
             scene_durations = []
             audio_files = []
 
             for s_idx in range(total_scenes):
                 clip_p = os.path.join(temp_dir, f'scene_{s_idx:02d}.mp3')
-
-                # Scene 0 khi include_intro là cảnh toàn ảnh mở đầu: để khoảng lặng êm đềm cho nhạc nền vang lên
-                if include_intro and s_idx == 0:
-                    dur_silence = max(1.8, intro_duration)
-                    cmd_silence = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(dur_silence), '-c:a', 'libmp3lame', clip_p]
-                    subprocess.run(cmd_silence, check=True, stderr=subprocess.DEVNULL)
-                    scene_durations.append(dur_silence)
-                    audio_files.append(clip_p)
-                    continue
-
-                dia_idx = s_idx - 1 if include_intro else s_idx
-                dia = dialogues_to_use[dia_idx] if dia_idx < len(dialogues_to_use) else {}
+                dia = dialogues_to_use[s_idx] if s_idx < len(dialogues_to_use) else {}
                 text = dia.get('text', '').strip()
                 speaker = dia.get('speaker', 'narrator')
                 voice = voice_cast.get(speaker, voice_cast.get('narrator', 'en-US-ChristopherNeural'))
@@ -251,21 +261,11 @@ def render_sync_video(config):
 
         elif audio_mode == 'custom_audio' and custom_audio_path and os.path.exists(custom_audio_path):
             final_audio_track = custom_audio_path
-            if include_intro:
-                other_scenes = total_scenes - 1
-                scene_sec = max(2.2, (duration - intro_duration) / max(1, other_scenes))
-                scene_durations = [intro_duration] + [scene_sec] * other_scenes
-            else:
-                scene_sec = max(2.2, duration / total_scenes)
-                scene_durations = [scene_sec] * total_scenes
+            scene_sec = max(2.2, duration / total_scenes)
+            scene_durations = [scene_sec] * total_scenes
         else:
-            if include_intro:
-                other_scenes = total_scenes - 1
-                scene_sec = max(2.2, (duration - intro_duration) / max(1, other_scenes))
-                scene_durations = [intro_duration] + [scene_sec] * other_scenes
-            else:
-                scene_sec = max(2.2, duration / total_scenes)
-                scene_durations = [scene_sec] * total_scenes
+            scene_sec = max(2.2, duration / total_scenes)
+            scene_durations = [scene_sec] * total_scenes
 
         # 2. RESOLVE BGM (Background Music)
         bgm_file = None
@@ -332,6 +332,11 @@ def render_sync_video(config):
 
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+        # Ghi 2 frame ảnh bìa toàn cảnh vào Frame 0 (~0.08s) để YouTube/trình phát lấy làm Thumbnail poster
+        # mà không phải giữ lâu, khán giả bấm xem sẽ bắt đầu từ ô thoại 1 ngay lập tức
+        proc.stdin.write(cover_canvas.tobytes())
+        proc.stdin.write(cover_canvas.tobytes())
+
         for s_idx, (bx, by, bw, bh) in enumerate(all_scenes):
             pad_x, pad_y = 3, 3
             y1, y2 = max(0, by - pad_y), min(h, by + bh + pad_y)
@@ -386,6 +391,7 @@ def render_sync_video(config):
     return {
         "success": True,
         "outputPath": output_path,
+        "thumbnailPath": thumb_path if os.path.exists(thumb_path) else None,
         "panelsCount": len(panels),
         "totalDuration": sum(scene_durations)
     }

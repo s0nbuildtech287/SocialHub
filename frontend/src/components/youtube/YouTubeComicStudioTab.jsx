@@ -1803,13 +1803,13 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       />
                       <div className="flex-1 space-y-1">
                         <label htmlFor="includeIntroToggle" className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 cursor-pointer">
-                          <span>🖼️ Hiện toàn cảnh trang tranh (Full Picture) lúc bắt đầu video (~2.2s)</span>
+                          <span>🖼️ Tự động đặt Thumbnail ảnh bìa là toàn cảnh tranh truyện</span>
                           <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
                             Khuyên dùng
                           </span>
                         </label>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                          Trước khi phóng to từng khung tranh, video sẽ hiển thị toàn bộ bức ảnh tranh gốc để người xem nắm trọn câu chuyện. <b>YouTube Shorts cũng sẽ lấy ngay cảnh toàn này làm Thumbnail bìa hoàn hảo</b> mà không bị đen!
+                          Video sẽ bắt đầu đọc và zoom ô truyện 1 ngay lập tức khi phát (không bị chờ), đồng thời toàn cảnh trang tranh được đặt ở Frame 0 và đẩy lên YouTube làm Thumbnail bìa hoàn chỉnh!
                         </p>
                       </div>
                     </div>

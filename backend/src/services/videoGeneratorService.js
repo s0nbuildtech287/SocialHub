@@ -85,20 +85,32 @@ export function renderComicToShortsVideo(options = {}) {
 
       try {
         const result = JSON.parse(stdoutData.trim().split('\n').pop() || '{}');
+        const thumbFilename = outputName.replace(/\.[^/.]+$/, '_thumb.jpg');
+        const thumbLocalPath = path.join(uploadsDir, thumbFilename);
+        const hasThumb = fs.existsSync(thumbLocalPath);
+
         resolve({
           success: true,
           filename: outputName,
           videoUrl: `/uploads/${outputName}`,
+          thumbnailUrl: hasThumb ? `/uploads/${thumbFilename}` : null,
+          thumbnailPath: hasThumb ? thumbLocalPath : null,
           duration: result.totalDuration || duration,
           size: fs.statSync(outputPath).size,
           mode,
           panelsCount: result.panelsCount || null
         });
       } catch {
+        const thumbFilename = outputName.replace(/\.[^/.]+$/, '_thumb.jpg');
+        const thumbLocalPath = path.join(uploadsDir, thumbFilename);
+        const hasThumb = fs.existsSync(thumbLocalPath);
+
         resolve({
           success: true,
           filename: outputName,
           videoUrl: `/uploads/${outputName}`,
+          thumbnailUrl: hasThumb ? `/uploads/${thumbFilename}` : null,
+          thumbnailPath: hasThumb ? thumbLocalPath : null,
           duration,
           size: fs.statSync(outputPath).size,
           mode
