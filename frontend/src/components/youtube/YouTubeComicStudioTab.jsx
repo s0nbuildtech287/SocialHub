@@ -270,21 +270,30 @@ const BGM_PRESETS = [
 
 const VOICE_CATALOG = [
   {
-    group: '🇻🇳 Giọng Tiếng Việt (Tự nhiên, truyền cảm)',
+    group: '🇻🇳 Giọng Tiếng Việt',
     voices: [
-      { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Việt - Trầm ấm, truyền cảm)' },
+      { id: 'vi-VN-NamMinhNeural', name: '🇻🇳 Nam Minh (Nam Trẻ - Trầm ấm, truyền cảm)' },
+      { id: 'vi-VN-NamMinhOld', name: '👴 Nam Minh Lão Thành (Nam Già - Trầm đục, từng trải, thông thái)' },
       { id: 'vi-VN-HoaiMyNeural', name: '🇻🇳 Hoài My (Nữ Việt - Dịu dàng, cảm xúc)' }
     ]
   },
   {
-    group: '🇺🇸🇬🇧 Giọng Nam Tiếng Anh',
+    group: '🇺🇸🇬🇧 Giọng Nam Cao Niên & Già Từng Trải (Elderly & Mature)',
+    voices: [
+      { id: 'en-US-RogerNeural', name: '👴 Roger (Nam Mỹ - Giọng ông lão cao niên, thông thái, từng trải)' },
+      { id: 'en-US-EricNeural', name: '🧔 Eric (Nam Mỹ - Giọng nam già / trung niên đĩnh đạc, trầm uy nghi)' },
+      { id: 'en-US-SteffanNeural', name: '👴 Steffan (Nam Mỹ - Giọng cụ ông, ấm áp, sâu sắc)' },
+      { id: 'en-GB-ThomasNeural', name: '🎩 Thomas (Nam Anh - Giọng bác / cụ già kể chuyện cổ tích BBC)' }
+    ]
+  },
+  {
+    group: '🇺🇸🇬🇧 Giọng Nam Trẻ & Hiện Đại',
     voices: [
       { id: 'en-US-GuyNeural', name: '🇺🇸 Guy (Nam Mỹ - Trẻ trung, diễn cảm)' },
       { id: 'en-US-AndrewNeural', name: '🇺🇸 Andrew (Nam Mỹ - Sôi nổi, ấm áp)' },
       { id: 'en-GB-RyanNeural', name: '🇬🇧 Ryan (Nam Anh - Quý phái, điềm tĩnh)' },
       { id: 'en-US-BrianNeural', name: '🇺🇸 Brian (Nam Mỹ - Mạnh mẽ, hiện đại)' },
-      { id: 'en-US-ChristopherNeural', name: '🇺🇸 Christopher (Nam Mỹ - Trầm ấm kinh điển)' },
-      { id: 'en-GB-ThomasNeural', name: '🇬🇧 Thomas (Nam Anh - Đậm chất cổ tích/BBC)' }
+      { id: 'en-US-ChristopherNeural', name: '🇺🇸 Christopher (Nam Mỹ - Trầm ấm kinh điển)' }
     ]
   },
   {

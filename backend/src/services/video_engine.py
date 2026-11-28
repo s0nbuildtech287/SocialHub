@@ -247,7 +247,19 @@ def render_sync_video(config):
                     rate = '-2%'
                     if speaker == 'charB' and voice_cast.get('charA') == voice_cast.get('charB'):
                         rate = '+6%'
-                    ok = asyncio.run(generate_tts_clip(text, voice, clip_p, rate=rate))
+
+                    voice_to_use = voice
+                    is_vi_old = (voice == 'vi-VN-NamMinhOld')
+                    if is_vi_old:
+                        voice_to_use = 'vi-VN-NamMinhNeural'
+
+                    ok = asyncio.run(generate_tts_clip(text, voice_to_use, clip_p, rate=rate))
+                    if ok and is_vi_old and os.path.exists(clip_p):
+                        temp_shift = clip_p.replace('.mp3', '_old.mp3')
+                        cmd_sh = [ffmpeg_exe, '-y', '-i', clip_p, '-af', 'asetrate=24000*0.89,aresample=24000,atempo=1.12', temp_shift]
+                        if subprocess.run(cmd_sh, check=False, stderr=subprocess.DEVNULL).returncode == 0 and os.path.exists(temp_shift):
+                            shutil.move(temp_shift, clip_p)
+
                     if not ok or not os.path.exists(clip_p) or os.path.getsize(clip_p) < 100:
                         cmd_silence = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', '2.5', '-c:a', 'libmp3lame', clip_p]
                         subprocess.run(cmd_silence, check=True, stderr=subprocess.DEVNULL)
