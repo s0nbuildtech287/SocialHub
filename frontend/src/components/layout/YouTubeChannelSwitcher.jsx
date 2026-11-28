@@ -27,7 +27,7 @@ export default function YouTubeChannelSwitcher({
           title={`Kênh YouTube: ${activeYoutubeChannel?.name || 'Chưa kết nối'}`}
         >
           {avatar ? (
-            <img src={avatar} alt="Avatar" className="w-full h-full rounded-xl object-cover" />
+            <img src={avatar} alt="Avatar" className="w-full h-full rounded-xl object-cover" referrerPolicy="no-referrer" />
           ) : (
             <Youtube className="w-4 h-4 text-red-500" />
           )}
@@ -48,6 +48,7 @@ export default function YouTubeChannelSwitcher({
                   src={avatar}
                   alt="Avatar"
                   className="w-7 h-7 rounded-lg object-cover border border-red-500/40"
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white text-[10px]">

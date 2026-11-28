@@ -17,6 +17,8 @@ export function renderComicToShortsVideo(options = {}) {
       audioPath = null,
       duration = 35,
       mode = 'panels',
+      includeIntro = true,
+      introDuration = 2.2,
       audioMode = 'silent', // 'silent' | 'ai_voice' | 'custom_audio'
       bgmPreset = 'none', // 'nostalgic_piano' | 'emotional_crescendo' | 'warm_acoustic' | 'deep_reflection' | 'none'
       bgmVolume = 0.20,
@@ -38,6 +40,8 @@ export function renderComicToShortsVideo(options = {}) {
       outputPath,
       ffmpegPath,
       duration: parseInt(duration, 10) || 35,
+      includeIntro: includeIntro !== false && includeIntro !== 'false',
+      introDuration: parseFloat(introDuration) || 2.2,
       audioMode: audioMode || (audioPath ? 'custom_audio' : 'silent'),
       customAudioPath: audioPath && fs.existsSync(audioPath) ? audioPath : null,
       bgmPreset: bgmPreset || 'none',

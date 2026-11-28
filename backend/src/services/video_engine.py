@@ -113,6 +113,11 @@ def render_sync_video(config):
     })
     panel_dialogues = config.get('panelDialogues', [])
 
+    include_intro = config.get('includeIntro', True)
+    if isinstance(include_intro, str):
+        include_intro = include_intro.lower() not in ('false', '0', 'no')
+    intro_duration = float(config.get('introDuration', 2.2))
+
     img = cv2.imread(image_path)
     if img is None:
         raise ValueError(f"Khong the doc file anh: {image_path}")
@@ -133,7 +138,12 @@ def render_sync_video(config):
     quote_h = max(int(h * 0.08), h - quote_y)
     footer_box = (int(w * 0.03), quote_y, int(w * 0.94), quote_h)
 
-    all_scenes = panels + [footer_box]
+    # Nếu include_intro = True, thêm toàn cảnh ảnh gốc (Full Picture Overview) vào vị trí đầu tiên
+    intro_box = (0, 0, w, h)
+    if include_intro:
+        all_scenes = [intro_box] + panels + [footer_box]
+    else:
+        all_scenes = panels + [footer_box]
     total_scenes = len(all_scenes)
 
     temp_dir = os.path.join(os.path.dirname(output_path), f"temp_sync_{int(np.random.randint(100000, 999999))}")
@@ -144,7 +154,8 @@ def render_sync_video(config):
     try:
         # 1. PROCESS AUDIO
         if audio_mode == 'ai_voice' and edge_tts is not None:
-            # If panel_dialogues is empty or smaller than scenes, auto-fallback to meaningful dialogue
+            # Map dialogues to panels
+            num_dialogue_scenes = len(panels) + 1  # panels + footer
             if not panel_dialogues or len(panel_dialogues) == 0:
                 is_vi = any('vi-VN' in str(v) for v in voice_cast.values())
                 if is_vi:
@@ -175,17 +186,31 @@ def render_sync_video(config):
                         ("charB", "Thank you, I will walk with peace and determination."),
                         ("narrator", "True strength begins with stillness of the mind.")
                     ]
-                panel_dialogues = [
+                dialogues_to_use = [
                     {"speaker": default_texts[i % len(default_texts)][0], "text": default_texts[i % len(default_texts)][1]}
-                    for i in range(total_scenes)
+                    for i in range(num_dialogue_scenes)
                 ]
+            else:
+                dialogues_to_use = panel_dialogues
 
             # Generate per-scene TTS audio
             scene_durations = []
             audio_files = []
 
             for s_idx in range(total_scenes):
-                dia = panel_dialogues[s_idx] if s_idx < len(panel_dialogues) else {}
+                clip_p = os.path.join(temp_dir, f'scene_{s_idx:02d}.mp3')
+
+                # Scene 0 khi include_intro là cảnh toàn ảnh mở đầu: để khoảng lặng êm đềm cho nhạc nền vang lên
+                if include_intro and s_idx == 0:
+                    dur_silence = max(1.8, intro_duration)
+                    cmd_silence = [ffmpeg_exe, '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono', '-t', str(dur_silence), '-c:a', 'libmp3lame', clip_p]
+                    subprocess.run(cmd_silence, check=True, stderr=subprocess.DEVNULL)
+                    scene_durations.append(dur_silence)
+                    audio_files.append(clip_p)
+                    continue
+
+                dia_idx = s_idx - 1 if include_intro else s_idx
+                dia = dialogues_to_use[dia_idx] if dia_idx < len(dialogues_to_use) else {}
                 text = dia.get('text', '').strip()
                 speaker = dia.get('speaker', 'narrator')
                 voice = voice_cast.get(speaker, voice_cast.get('narrator', 'en-US-ChristopherNeural'))
@@ -194,8 +219,6 @@ def render_sync_video(config):
                 text = re.sub(r'\(.*?\)', '', text)
                 text = re.sub(r'\[.*?\]', '', text)
                 text = text.replace('"', '').replace("'", '').replace('“', '').replace('”', '').strip()
-
-                clip_p = os.path.join(temp_dir, f'scene_{s_idx:02d}.mp3')
 
                 if not text:
                     # Pure silence for reflective moment without AI speaking strange placeholder words
@@ -228,11 +251,21 @@ def render_sync_video(config):
 
         elif audio_mode == 'custom_audio' and custom_audio_path and os.path.exists(custom_audio_path):
             final_audio_track = custom_audio_path
-            scene_sec = max(2.2, duration / total_scenes)
-            scene_durations = [scene_sec] * total_scenes
+            if include_intro:
+                other_scenes = total_scenes - 1
+                scene_sec = max(2.2, (duration - intro_duration) / max(1, other_scenes))
+                scene_durations = [intro_duration] + [scene_sec] * other_scenes
+            else:
+                scene_sec = max(2.2, duration / total_scenes)
+                scene_durations = [scene_sec] * total_scenes
         else:
-            scene_sec = max(2.2, duration / total_scenes)
-            scene_durations = [scene_sec] * total_scenes
+            if include_intro:
+                other_scenes = total_scenes - 1
+                scene_sec = max(2.2, (duration - intro_duration) / max(1, other_scenes))
+                scene_durations = [intro_duration] + [scene_sec] * other_scenes
+            else:
+                scene_sec = max(2.2, duration / total_scenes)
+                scene_durations = [scene_sec] * total_scenes
 
         # 2. RESOLVE BGM (Background Music)
         bgm_file = None

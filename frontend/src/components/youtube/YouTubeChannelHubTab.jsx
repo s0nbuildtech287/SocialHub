@@ -261,17 +261,26 @@ export default function YouTubeChannelHubTab({
           {/* CHANNEL IDENTITY CARD */}
           <div className="app-card-raised p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
             <div className="flex items-center gap-4">
-              {channel.thumbnails?.default?.url ? (
+              {(channel.avatar || channel.thumbnails?.high?.url || channel.thumbnails?.medium?.url || channel.thumbnails?.default?.url) ? (
                 <img
-                  src={channel.thumbnails.default.url}
+                  src={channel.avatar || channel.thumbnails?.high?.url || channel.thumbnails?.medium?.url || channel.thumbnails?.default?.url}
                   alt={channel.title}
-                  className="w-16 h-16 rounded-full border-2 border-red-500 shadow-md object-cover"
+                  className="w-16 h-16 rounded-full border-2 border-red-500 shadow-md object-cover bg-slate-800"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallbackEl = document.getElementById('yt-avatar-fallback');
+                    if (fallbackEl) fallbackEl.style.display = 'flex';
+                  }}
                 />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xl shadow-md">
-                  {channel.title?.charAt(0) || 'Y'}
-                </div>
-              )}
+              ) : null}
+              <div 
+                id="yt-avatar-fallback"
+                className="w-16 h-16 rounded-full bg-red-600 text-white items-center justify-center font-bold text-xl shadow-md"
+                style={{ display: (channel.avatar || channel.thumbnails?.high?.url || channel.thumbnails?.medium?.url || channel.thumbnails?.default?.url) ? 'none' : 'flex' }}
+              >
+                {channel.title?.charAt(0) || 'Y'}
+              </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
@@ -425,58 +434,81 @@ export default function YouTubeChannelHubTab({
             </div>
 
             {recentVideos && recentVideos.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {recentVideos.map((vid) => {
                   const videoId = vid.id?.videoId || vid.id;
-                  const snippet = vid.snippet || {};
-                  const thumb = snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
+                  const title = vid.title || vid.snippet?.title || 'YouTube Shorts';
+                  const publishedAt = vid.publishedAt || vid.snippet?.publishedAt;
+                  const thumb = vid.thumbnail 
+                    || vid.snippet?.thumbnails?.high?.url 
+                    || vid.snippet?.thumbnails?.medium?.url 
+                    || (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null);
+
                   return (
                     <div
                       key={videoId}
-                      className="app-card-raised p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 hover:border-red-500/40 transition flex flex-col justify-between"
+                      className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900 shadow-md hover:shadow-xl hover:border-red-500/50 transition-all duration-300 flex flex-col justify-between"
                     >
-                      <div className="space-y-2">
-                        <div className="relative aspect-video rounded-xl overflow-hidden bg-black shadow-inner">
-                          {thumb && (
-                            <img
-                              src={thumb}
-                              alt={snippet.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
-                          <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md bg-black/85 text-[10px] text-white font-bold flex items-center gap-1 shadow-sm">
+                      {/* DẠNG DỌC CHUẨN SHORTS 9:16 */}
+                      <div className="relative aspect-[9/16] w-full overflow-hidden bg-slate-950 flex flex-col justify-between p-3">
+                        {/* ẢNH THUMBNAIL DỌC */}
+                        {thumb && (
+                          <img
+                            src={thumb}
+                            alt={title}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              if (videoId && !e.currentTarget.src.includes('hqdefault')) {
+                                e.currentTarget.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                              }
+                            }}
+                          />
+                        )}
+
+                        {/* GRADIENT TỐI NỀN */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/20 pointer-events-none" />
+
+                        {/* HUY HIỆU SHORTS & NÚT COPY */}
+                        <div className="relative z-10 flex items-center justify-between">
+                          <span className="px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md text-[10px] text-white font-bold flex items-center gap-1 border border-white/10 shadow-sm">
                             <Youtube className="w-3 h-3 text-red-500" />
                             <span>Shorts</span>
                           </span>
+
+                          <button
+                            onClick={() => handleCopy(`https://www.youtube.com/shorts/${videoId}`, `yt_${videoId}`)}
+                            className="w-7 h-7 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md text-white flex items-center justify-center transition border border-white/15 cursor-pointer shadow-sm"
+                            title="Copy liên kết Shorts"
+                          >
+                            {copiedKey === `yt_${videoId}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-300" />}
+                          </button>
                         </div>
 
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-2 leading-relaxed" title={snippet.title}>
-                          {snippet.title}
-                        </h4>
+                        {/* TIÊU ĐỀ & NÚT XEM TRÊN YOUTUBE */}
+                        <div className="relative z-10 space-y-2 mt-auto">
+                          <h4 
+                            className="text-xs font-bold text-white line-clamp-2 leading-snug drop-shadow-md group-hover:text-red-400 transition" 
+                            title={title}
+                          >
+                            {title}
+                          </h4>
 
-                        <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{snippet.publishedAt ? new Date(snippet.publishedAt).toLocaleDateString('vi-VN') : 'Mới đây'}</span>
+                          <div className="text-[10px] text-slate-300 flex items-center gap-1 font-medium">
+                            <Clock className="w-3 h-3 text-slate-400" />
+                            <span>{publishedAt ? new Date(publishedAt).toLocaleDateString('vi-VN') : 'Mới xuất bản'}</span>
+                          </div>
+
+                          <a
+                            href={`https://www.youtube.com/shorts/${videoId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full py-1.5 px-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] transition flex items-center justify-center gap-1 shadow-md cursor-pointer"
+                          >
+                            <span>Xem trên Shorts</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
                         </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-2.5 border-t border-slate-200 dark:border-slate-800">
-                        <a
-                          href={`https://www.youtube.com/shorts/${videoId}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex-1 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] transition flex items-center justify-center gap-1"
-                        >
-                          <span>Xem trên Shorts</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                        <button
-                          onClick={() => handleCopy(`https://www.youtube.com/shorts/${videoId}`, `yt_${videoId}`)}
-                          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs transition cursor-pointer"
-                          title="Copy liên kết Shorts"
-                        >
-                          {copiedKey === `yt_${videoId}` ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
                       </div>
                     </div>
                   );

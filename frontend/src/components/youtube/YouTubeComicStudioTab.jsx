@@ -454,6 +454,8 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
   const [videoAudioFile, setVideoAudioFile] = useState(null);
   const [videoDuration, setVideoDuration] = useState(35);
   const [renderMode, setRenderMode] = useState('panels'); // 'panels' | 'scroll'
+  const [includeIntro, setIncludeIntro] = useState(true);
+  const [introDuration, setIntroDuration] = useState(2.2);
   
   // Audio & Voice States
   const [audioMode, setAudioMode] = useState('ai_voice'); // 'ai_voice' | 'silent' | 'custom_audio'
@@ -778,6 +780,8 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
       formData.append('image', videoImageFile);
       formData.append('duration', videoDuration);
       formData.append('mode', renderMode);
+      formData.append('includeIntro', includeIntro);
+      formData.append('introDuration', introDuration);
       formData.append('audioMode', audioMode);
 
       // Xử lý BGM (Nhạc nền)
@@ -1786,6 +1790,28 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                           Vừa khít 100% bề ngang, cuộn êm đềm từ đỉnh xuống chân trang, giữ trọn vẹn cả 2 viền chữ.
                         </p>
                       </button>
+                    </div>
+
+                    {/* Lựa chọn hiển thị toàn cảnh mở đầu video (Full Picture Overview) */}
+                    <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        id="includeIntroToggle"
+                        checked={includeIntro}
+                        onChange={(e) => setIncludeIntro(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded text-red-600 focus:ring-red-500 cursor-pointer"
+                      />
+                      <div className="flex-1 space-y-1">
+                        <label htmlFor="includeIntroToggle" className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5 cursor-pointer">
+                          <span>🖼️ Hiện toàn cảnh trang tranh (Full Picture) lúc bắt đầu video (~2.2s)</span>
+                          <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                            Khuyên dùng
+                          </span>
+                        </label>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                          Trước khi phóng to từng khung tranh, video sẽ hiển thị toàn bộ bức ảnh tranh gốc để người xem nắm trọn câu chuyện. <b>YouTube Shorts cũng sẽ lấy ngay cảnh toàn này làm Thumbnail bìa hoàn hảo</b> mà không bị đen!
+                        </p>
+                      </div>
                     </div>
                   </div>
 

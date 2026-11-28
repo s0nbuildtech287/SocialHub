@@ -145,35 +145,117 @@ export async function getYoutubeChannelData(channelId = null) {
 
     const [channelRes, videosRes] = await Promise.all([
       youtube.channels.list({
-        part: ['snippet', 'statistics'],
+        part: ['snippet', 'statistics', 'contentDetails'],
         id: [ytChannel.channelId || ytChannel.id.replace('yt_', '')]
       }),
       youtube.search.list({
         part: ['snippet'],
         channelId: ytChannel.channelId || ytChannel.id.replace('yt_', ''),
-        maxResults: 6,
+        maxResults: 12,
         order: 'date',
         type: ['video']
       })
     ]);
 
     const ch = channelRes.data.items?.[0];
-    const recentVideos = (videosRes.data.items || []).map(v => ({
-      id: v.id.videoId,
-      title: v.snippet.title,
-      publishedAt: v.snippet.publishedAt,
-      thumbnail: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url,
-      shortsUrl: `https://www.youtube.com/shorts/${v.id.videoId}`
-    }));
+
+    // 1. Thử lấy từ playlist uploads để có video ngay lập tức (không trễ index tìm kiếm)
+    let recentVideos = [];
+    const uploadsPlaylistId = ch?.contentDetails?.relatedPlaylists?.uploads;
+    if (uploadsPlaylistId) {
+      try {
+        const playlistRes = await youtube.playlistItems.list({
+          part: ['snippet'],
+          playlistId: uploadsPlaylistId,
+          maxResults: 12
+        });
+        recentVideos = (playlistRes.data.items || []).map(v => {
+          const vidId = v.snippet?.resourceId?.videoId || v.id;
+          const snippet = v.snippet || {};
+          const thumb = snippet.thumbnails?.high?.url 
+            || snippet.thumbnails?.medium?.url 
+            || snippet.thumbnails?.default?.url 
+            || (vidId ? `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg` : null);
+
+          return {
+            id: vidId,
+            title: snippet.title || 'YouTube Shorts',
+            description: snippet.description || '',
+            publishedAt: snippet.publishedAt || new Date().toISOString(),
+            thumbnail: thumb,
+            thumbnails: snippet.thumbnails,
+            snippet: snippet,
+            shortsUrl: `https://www.youtube.com/shorts/${vidId}`
+          };
+        });
+      } catch (e) {
+        console.warn('Lỗi lấy playlist uploads:', e.message);
+      }
+    }
+
+    // 2. Dự phòng: nếu playlist rỗng thì lấy từ kết quả search
+    if (recentVideos.length === 0 && videosRes.data.items?.length > 0) {
+      recentVideos = (videosRes.data.items || []).map(v => {
+        const vidId = v.id?.videoId || v.id;
+        const snippet = v.snippet || {};
+        const thumb = snippet.thumbnails?.high?.url 
+          || snippet.thumbnails?.medium?.url 
+          || snippet.thumbnails?.default?.url 
+          || (vidId ? `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg` : null);
+
+        return {
+          id: vidId,
+          title: snippet.title || 'YouTube Shorts',
+          description: snippet.description || '',
+          publishedAt: snippet.publishedAt || new Date().toISOString(),
+          thumbnail: thumb,
+          thumbnails: snippet.thumbnails,
+          snippet: snippet,
+          shortsUrl: `https://www.youtube.com/shorts/${vidId}`
+        };
+      });
+    }
+
+    const freshAvatar = ch?.snippet?.thumbnails?.high?.url 
+      || ch?.snippet?.thumbnails?.medium?.url 
+      || ch?.snippet?.thumbnails?.default?.url 
+      || ytChannel.avatar;
+
+    const channelData = ch ? {
+      id: ch.id,
+      title: ch.snippet.title,
+      description: ch.snippet.description,
+      customUrl: ch.snippet.customUrl,
+      avatar: freshAvatar,
+      thumbnails: ch.snippet.thumbnails,
+      subscriberCount: Number(ch.statistics?.subscriberCount || 0),
+      viewCount: Number(ch.statistics?.viewCount || 0),
+      videoCount: Number(ch.statistics?.videoCount || 0),
+      statistics: ch.statistics || {
+        subscriberCount: 0,
+        viewCount: 0,
+        videoCount: 0
+      }
+    } : {
+      ...ytChannel,
+      title: ytChannel.name || ytChannel.title,
+      avatar: ytChannel.avatar,
+      statistics: {
+        subscriberCount: ytChannel.subscriberCount || 0,
+        viewCount: ytChannel.viewCount || 0,
+        videoCount: ytChannel.videoCount || 0
+      }
+    };
+
+    if (freshAvatar && freshAvatar !== ytChannel.avatar) {
+      ytChannel.avatar = freshAvatar;
+      if (db.addOrUpdateChannel) {
+        db.addOrUpdateChannel(ytChannel);
+      }
+    }
 
     return {
-      channel: ch ? {
-        title: ch.snippet.title,
-        avatar: ch.snippet.thumbnails?.medium?.url,
-        subscriberCount: ch.statistics.subscriberCount,
-        viewCount: ch.statistics.viewCount,
-        videoCount: ch.statistics.videoCount
-      } : ytChannel,
+      channel: channelData,
       recentVideos
     };
   } catch (err) {
