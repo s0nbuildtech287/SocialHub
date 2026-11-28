@@ -403,6 +403,7 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
 
       const res = await axios.post('/api/youtube/upload-shorts', {
         videoUrl: renderedResult.videoUrl,
+        thumbnailUrl: renderedResult.thumbnailUrl,
         title: uploadTitle.trim(),
         description: uploadDesc.trim(),
         tags: parsedTags,
@@ -2422,14 +2423,28 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     <span>Xuất Video Shorts Thành Công! (Sẵn sàng đăng YouTube Shorts & TikTok)</span>
                   </div>
 
-                  <a
-                    href={renderedResult.videoUrl}
-                    download="youtube_shorts_fable.mp4"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition shrink-0"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Tải Video MP4 Về Máy</span>
-                  </a>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {renderedResult.thumbnailUrl && (
+                      <a
+                        href={renderedResult.thumbnailUrl}
+                        download="shorts_thumbnail_hd.jpg"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition shrink-0"
+                        title="Tải ảnh bìa toàn cảnh HD để lưu hoặc cài đặt thủ công trên YouTube Studio"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                        <span>Tải Ảnh Bìa Toàn Cảnh (HD)</span>
+                      </a>
+                    )}
+
+                    <a
+                      href={renderedResult.videoUrl}
+                      download="youtube_shorts_fable.mp4"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition shrink-0"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Tải Video MP4 Về Máy</span>
+                    </a>
+                  </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -3038,6 +3053,38 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                     <option value="private">🔒 Riêng tư (Chỉ mình bạn xem được)</option>
                   </select>
                 </div>
+
+                {/* 5. Ảnh bìa toàn cảnh (Thumbnail) */}
+                {renderedResult?.thumbnailUrl && (
+                  <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 flex items-start gap-3.5">
+                    <img 
+                      src={renderedResult.thumbnailUrl} 
+                      alt="Thumbnail HD" 
+                      className="w-16 h-28 object-cover rounded-xl border border-amber-300 dark:border-amber-800 shrink-0 shadow-sm"
+                    />
+                    <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                      <div className="font-bold text-slate-900 dark:text-amber-300 flex items-center gap-1.5">
+                        <span>📸 Ảnh Bìa Toàn Cảnh Chuẩn HD 9:16</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-black">Tự Động Tạo</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        Hệ thống tự động đồng bộ ảnh bìa này lên YouTube.
+                        <br />
+                        <span className="text-amber-600 dark:text-amber-400 font-medium">
+                          💡 <b>Mẹo YouTube:</b> Kênh cần xác minh SĐT (Tính năng bậc trung - 30s) trên YouTube Studio để mở khóa gán ảnh bìa tùy chỉnh tự động.
+                        </span>
+                      </p>
+                      <a 
+                        href={renderedResult.thumbnailUrl} 
+                        download="shorts_thumbnail_hd.jpg"
+                        className="inline-flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-bold hover:underline"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Tải ảnh bìa này về máy</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

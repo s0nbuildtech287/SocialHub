@@ -620,8 +620,16 @@ app.post('/api/youtube/channel/active', async (req, res) => {
 // 5.10 YouTube: Đăng video Shorts 1-Click (hỗ trợ cả video vừa render và file MP4 có sẵn từ máy tính)
 app.post('/api/youtube/upload-shorts', upload.single('videoFile'), async (req, res) => {
   try {
-    const { videoUrl, videoName, title, description, tags, privacyStatus, channelId } = req.body;
+    const { videoUrl, videoName, title, description, tags, privacyStatus, channelId, thumbnailUrl } = req.body;
     let filePath = null;
+    let thumbnailPath = null;
+
+    if (thumbnailUrl) {
+      const candidate = path.join(uploadsDir, path.basename(thumbnailUrl));
+      if (fs.existsSync(candidate)) {
+        thumbnailPath = candidate;
+      }
+    }
 
     if (req.file) {
       filePath = req.file.path;
@@ -646,6 +654,7 @@ app.post('/api/youtube/upload-shorts', upload.single('videoFile'), async (req, r
 
     const result = await uploadYoutubeShorts({
       filePath,
+      thumbnailPath,
       title,
       description,
       tags: parsedTags,
