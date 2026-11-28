@@ -131,6 +131,8 @@ export async function uploadYoutubeShorts({ filePath, title, description, tags =
   }
 
   if (resolvedThumbPath && fs.existsSync(resolvedThumbPath)) {
+    // Đợi 1.5s để YouTube đăng ký videoId trên CDN trước khi gắn thumbnail
+    await new Promise(r => setTimeout(r, 1500));
     try {
       await youtube.thumbnails.set({
         videoId,
@@ -141,7 +143,20 @@ export async function uploadYoutubeShorts({ filePath, title, description, tags =
       });
       console.log(`[YouTube] Đã đặt thumbnail tùy chỉnh thành công cho video ${videoId}`);
     } catch (thumbErr) {
-      console.warn(`[YouTube] Lưu ý thumbnail API: ${thumbErr.message}. YouTube sẽ dùng Frame 0 làm ảnh bìa.`);
+      console.warn(`[YouTube] Thử lại lần 2 thumbnail API sau 2s... (${thumbErr.message})`);
+      try {
+        await new Promise(r => setTimeout(r, 2000));
+        await youtube.thumbnails.set({
+          videoId,
+          media: {
+            mimeType: 'image/jpeg',
+            body: fs.createReadStream(resolvedThumbPath)
+          }
+        });
+        console.log(`[YouTube] Thử lại thành công: Đã đặt thumbnail tùy chỉnh cho video ${videoId}`);
+      } catch (retryErr) {
+        console.warn(`[YouTube] Lưu ý thumbnail API: ${retryErr.message}.`);
+      }
     }
   }
 
