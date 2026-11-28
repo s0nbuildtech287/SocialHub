@@ -12,6 +12,7 @@ import NewsRadarTab from './components/news/NewsRadarTab';
 import FacebookAnalyticsTab from './components/facebook/FacebookAnalyticsTab';
 import AffiliateHubTab from './components/affiliate/AffiliateHubTab';
 import YouTubeComicStudioTab from './components/youtube/YouTubeComicStudioTab';
+import YouTubeChannelHubTab from './components/youtube/YouTubeChannelHubTab';
 import PlaceholderPage from './components/common/PlaceholderPage';
 import { findModuleById } from './config/platformRegistry';
 
@@ -153,9 +154,14 @@ export default function App() {
         />
       )}
 
-      {/* 5.2 YouTube: Xưởng Truyện Tranh Shorts AI & Analytics */}
-      {(currentRoute === 'youtube-comic-studio' || currentRoute === 'youtube-shorts') && (
-        <YouTubeComicStudioTab initialTab={currentRoute === 'youtube-shorts' ? 'analytics' : 'generator'} />
+      {/* 5.2 YouTube: Trung Tâm Kênh & Thống Kê Tổng Hợp */}
+      {(currentRoute === 'youtube-channel' || currentRoute === 'youtube-shorts') && (
+        <YouTubeChannelHubTab onNavigate={(routeId) => setCurrentRoute(routeId)} />
+      )}
+
+      {/* 5.3 YouTube: Xưởng Truyện Tranh Shorts AI */}
+      {currentRoute === 'youtube-comic-studio' && (
+        <YouTubeComicStudioTab onNavigate={(routeId) => setCurrentRoute(routeId)} />
       )}
 
       {/* 6. Quản lý Kênh & Token */}

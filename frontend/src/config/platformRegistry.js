@@ -103,25 +103,54 @@ export const PLATFORM_REGISTRY = {
       defaultOpen: true,
       modules: [
         { 
-          id: 'youtube-comic-studio', 
-          label: 'Truyện Tranh Shorts AI', 
-          icon: 'BookOpen', 
-          badge: 'Hot', 
-          status: 'active',
-          platform: 'youtube'
-        },
-        { 
-          id: 'youtube-shorts', 
-          label: 'Kênh & Data Người Xem', 
+          id: 'youtube-channel', 
+          label: 'Kênh & Thống Kê', 
           icon: 'BarChart3', 
           badge: 'Mới', 
           status: 'active',
           platform: 'youtube',
-          description: 'Quản lý kênh YouTube, theo dõi số người đăng ký, tổng lượt xem và thống kê video Shorts.',
+          description: 'Quản lý kênh YouTube, theo dõi số người đăng ký, tổng lượt xem và toàn bộ video xuất bản.',
           features: [
             'Xem số người đăng ký (Subscribers) và tổng lượt xem toàn kênh',
-            'Danh sách video Shorts đã xuất bản kèm link xem trực tiếp',
-            'Đăng video Shorts 1-Click tự động qua YouTube Data API v3'
+            'Danh sách toàn bộ video từ các xưởng sáng tạo đã đẩy lên kênh',
+            'Quản lý kết nối Google Cloud OAuth 2.0 và hạn ngạch API'
+          ]
+        },
+        { 
+          id: 'youtube-comic-studio', 
+          label: 'Xưởng Truyện Tranh Shorts AI', 
+          icon: 'BookOpen', 
+          badge: 'Hot', 
+          status: 'active',
+          platform: 'youtube',
+          description: 'Xưởng sáng tạo video ngụ ngôn triết lý dạng cuộn dọc 9:16 kèm giọng đọc AI đa vai.'
+        },
+        { 
+          id: 'youtube-music-studio', 
+          label: 'Xưởng Nhạc Chill & Lofi', 
+          icon: 'Music2', 
+          badge: 'Đang phát triển', 
+          status: 'soon',
+          platform: 'youtube',
+          description: 'Tự động tạo video âm nhạc thư giãn, lofi beats, piano học tập kèm hiệu ứng visualizer sóng nhạc.',
+          features: [
+            'Ghép nhạc bản quyền lofi thư giãn không lời',
+            'Visualizer hiệu ứng sóng nhạc tự động',
+            'Hỗ trợ video dài và luồng phát liên tục'
+          ]
+        },
+        { 
+          id: 'youtube-comment-studio', 
+          label: 'Xưởng Reup & Đọc Comment', 
+          icon: 'MessageSquare', 
+          badge: 'Đang phát triển', 
+          status: 'soon',
+          platform: 'youtube',
+          description: 'Tự động chuyển các bài đăng, bình luận thảo luận nổi bật trên mạng xã hội thành video ngắn có giọng đọc truyền cảm.',
+          features: [
+            'Cào bình luận hài hước / viral từ mạng xã hội',
+            'Tạo video dạng ảnh chụp bình luận kèm giọng đọc AI',
+            'Xuất định dạng Shorts 9:16 tối ưu giữ chân người xem'
           ]
         }
       ]
