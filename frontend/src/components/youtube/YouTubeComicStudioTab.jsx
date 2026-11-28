@@ -39,7 +39,8 @@ import {
   Video,
   CheckCircle2,
   Loader2,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 
 // Thư viện các câu chuyện ngụ ngôn mẫu chuẩn
@@ -355,28 +356,64 @@ export default function YouTubeComicStudioTab({ onNavigate }) {
     }
   };
 
-  const handleUploadToYoutube = async () => {
+  // YouTube Upload Modal States (Cho phép điền Title, Description, Tags trước khi đăng)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDesc, setUploadDesc] = useState('');
+  const [uploadTags, setUploadTags] = useState('Shorts, AIComic, Story, Philosophy, LifeLessons');
+  const [uploadPrivacy, setUploadPrivacy] = useState('public');
+
+  const handleOpenUploadModal = () => {
     if (!renderedResult?.videoUrl) {
       alert('Chưa có video render xong để đăng!');
       return;
     }
-    setIsUploadingYoutube(true);
+    const defaultTitle = currentStory?.title 
+      || currentStory?.vietnameseTitle 
+      || (videoImageFile ? videoImageFile.name.replace(/\.[^/.]+$/, '') : 'The Inspiring Comic Story');
+    
+    const defaultDesc = currentStory?.summary 
+      ? `${currentStory.summary}\n\n#Shorts #Philosophy #LifeLessons #Storybook`
+      : 'A meaningful life lesson storybook animation.\n\n#Shorts #Philosophy #LifeLessons #Storybook';
+
+    setUploadTitle(defaultTitle);
+    setUploadDesc(defaultDesc);
+    setUploadTags('Shorts, AIComic, Story, Philosophy, LifeLessons');
+    setUploadPrivacy('public');
     setYoutubeUploadedVideo(null);
+    setIsUploadModalOpen(true);
+  };
+
+  const handleConfirmUploadToYoutube = async () => {
+    if (!renderedResult?.videoUrl) {
+      alert('Chưa có video render xong để đăng!');
+      return;
+    }
+    if (!uploadTitle.trim()) {
+      alert('Vui lòng nhập tiêu đề cho video Shorts!');
+      return;
+    }
+
+    setIsUploadingYoutube(true);
     try {
-      const title = currentStory?.title || 'Inspirational Storybook Fable';
-      const desc = currentStory?.summary || 'A meaningful life lesson storybook animation.';
+      const parsedTags = uploadTags
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean);
+
       const res = await axios.post('/api/youtube/upload-shorts', {
         videoUrl: renderedResult.videoUrl,
-        title,
-        description: desc,
-        tags: ['Fable', 'Story', 'Philosophy', 'Shorts', 'LifeLessons'],
-        privacyStatus: 'public'
+        title: uploadTitle.trim(),
+        description: uploadDesc.trim(),
+        tags: parsedTags,
+        privacyStatus: uploadPrivacy
       });
+
       if (res.data?.success) {
         setYoutubeUploadedVideo(res.data);
         setNotification({
           type: 'success',
-          message: `🚀 Đã đăng video thành công lên kênh YouTube Shorts! Video ID: ${res.data.videoId}`
+          message: `🚀 Video đã được đăng thành công lên YouTube Shorts! Video ID: ${res.data.videoId}`
         });
         fetchYoutubeChannel();
       }
@@ -2438,21 +2475,12 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
                       {youtubeChannel ? (
                         <div className="space-y-2">
                           <button
-                            onClick={handleUploadToYoutube}
+                            onClick={handleOpenUploadModal}
                             disabled={isUploadingYoutube}
                             className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition shadow-md shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                           >
-                            {isUploadingYoutube ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Đang Tự Động Tải Lên YouTube Shorts...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="w-4 h-4" />
-                                <span>🚀 Đăng 1-Click Lên Kênh YouTube Shorts</span>
-                              </>
-                            )}
+                            <Sparkles className="w-4 h-4" />
+                            <span>🚀 Đăng Video Lên Kênh YouTube Shorts</span>
                           </button>
 
                           {youtubeUploadedVideo && (
@@ -2892,6 +2920,196 @@ Yêu cầu định dạng: Viết bằng tiếng Anh với lời thoại ngắn,
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* MODAL XÁC NHẬN & CHỈNH SỬA TIÊU ĐỀ, MÔ TẢ TRƯỚC KHI ĐĂNG LÊN YOUTUBE SHORTS */}
+      {isUploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-md shadow-red-500/25">
+                  <Youtube className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                    Đăng Video Lên Kênh YouTube Shorts
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Kênh đích: <b className="text-red-500 font-bold">{youtubeChannel?.title || 'YouTube Channel'}</b>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsUploadModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: 2 Columns */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              {/* Cột trái: Xem trước video Shorts 9:16 */}
+              <div className="md:col-span-5 space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                  Xem trước video Shorts (9:16):
+                </label>
+                <div className="aspect-[9/16] w-full rounded-2xl overflow-hidden bg-black border border-slate-200 dark:border-slate-800 shadow-md">
+                  <video 
+                    controls 
+                    src={renderedResult?.videoUrl} 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 text-center font-medium">
+                  1080x1920 Full HD · {renderedResult?.duration || 35} Giây
+                </div>
+              </div>
+
+              {/* Cột phải: Form nhập Title, Description, Tags, Privacy */}
+              <div className="md:col-span-7 space-y-3.5">
+                {/* 1. Tiêu đề video */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                      <span>1. Tiêu đề video Shorts</span>
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {uploadTitle.length}/100 ký tự
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    maxLength={100}
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                    placeholder="Nhập tiêu đề hấp dẫn cho video..."
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                  <p className="text-[10px] text-slate-400 leading-tight">
+                    💡 Hệ thống tự động gắn tag <b>#Shorts</b> vào cuối nếu tiêu đề chưa có.
+                  </p>
+                </div>
+
+                {/* 2. Mô tả video */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                    2. Mô tả video (Description):
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={uploadDesc}
+                    onChange={(e) => setUploadDesc(e.target.value)}
+                    placeholder="Mô tả ý nghĩa câu chuyện, bài học triết lý..."
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+
+                {/* 3. Thẻ từ khóa (Tags) */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                    3. Thẻ từ khóa (Tags, phân cách bằng dấu phẩy):
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadTags}
+                    onChange={(e) => setUploadTags(e.target.value)}
+                    placeholder="Shorts, AIComic, Story, TrietLy..."
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+
+                {/* 4. Quyền riêng tư */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                    4. Chế độ hiển thị:
+                  </label>
+                  <select
+                    value={uploadPrivacy}
+                    onChange={(e) => setUploadPrivacy(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-red-500"
+                  >
+                    <option value="public">🌐 Công khai (Mọi người đều tìm thấy & xem được)</option>
+                    <option value="unlisted">🔗 Không công khai (Chỉ người có link mới xem được)</option>
+                    <option value="private">🔒 Riêng tư (Chỉ mình bạn xem được)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+              {youtubeUploadedVideo ? (
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-between">
+                    <span className="font-bold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span>Đã tải video lên YouTube Shorts thành công!</span>
+                    </span>
+                    <a
+                      href={`https://www.youtube.com/shorts/${youtubeUploadedVideo.videoId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-black underline hover:text-emerald-300 flex items-center gap-1"
+                    >
+                      <span>Xem Ngay Trên Shorts</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                  <div className="flex justify-end gap-2.5">
+                    <button
+                      onClick={() => handleCopy(`https://www.youtube.com/shorts/${youtubeUploadedVideo.videoId}`, 'modal_shorts_link')}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedKey === 'modal_shorts_link' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedKey === 'modal_shorts_link' ? 'Đã copy link!' : 'Copy liên kết video'}</span>
+                    </button>
+                    <button
+                      onClick={() => setIsUploadModalOpen(false)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold transition cursor-pointer"
+                    >
+                      Hoàn Tất & Đóng
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsUploadModalOpen(false)}
+                    disabled={isUploadingYoutube}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition cursor-pointer disabled:opacity-50"
+                  >
+                    Huỷ Bỏ
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleConfirmUploadToYoutube}
+                    disabled={isUploadingYoutube || !uploadTitle.trim()}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs transition shadow-md shadow-red-500/25 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isUploadingYoutube ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Đang Tải Video Lên YouTube Shorts...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UploadCloud className="w-4 h-4" />
+                        <span>🚀 Xác Nhận Đăng Lên Kênh YouTube Shorts</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
