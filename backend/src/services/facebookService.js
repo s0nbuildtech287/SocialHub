@@ -138,8 +138,69 @@ export async function getRecentPosts(pageId, pageToken, limit = 15) {
     console.warn(`Lỗi lấy stories của page ${pageId}:`, err.message);
   }
 
-  // Kết hợp cả bài viết và Tin dạng ảnh, sắp xếp theo thời gian mới nhất
-  const combined = [...stories, ...posts].sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
+  // 3. Gọi /{pageId}/video_reels và /{pageId}/videos lấy Thước phim Reel & Video
+  let reels = [];
+  try {
+    const [reelsRes, videosRes] = await Promise.all([
+      axios.get(`${FB_GRAPH_URL}/${pageId}/video_reels`, {
+        params: {
+          fields: 'id,description,created_time,thumbnails,permalink_url',
+          limit: 10,
+          access_token: pageToken
+        }
+      }).catch(() => ({ data: { data: [] } })),
+      axios.get(`${FB_GRAPH_URL}/${pageId}/videos`, {
+        params: {
+          fields: 'id,description,created_time,picture,permalink_url,views,likes.summary(true),comments.summary(true)',
+          limit: 10,
+          access_token: pageToken
+        }
+      }).catch(() => ({ data: { data: [] } }))
+    ]);
+
+    const rawReels = reelsRes.data?.data || [];
+    const rawVideos = videosRes.data?.data || [];
+
+    const mappedReels = rawReels.map(r => ({
+      id: r.id,
+      type: 'reel',
+      typeLabel: 'Thước phim Reel',
+      message: r.description || '(Thước phim Facebook Reel)',
+      full_picture: r.thumbnails?.data?.[0]?.uri || null,
+      permalink_url: r.permalink_url ? (r.permalink_url.startsWith('http') ? r.permalink_url : `https://facebook.com${r.permalink_url}`) : `https://facebook.com/${pageId}`,
+      created_time: r.created_time || new Date().toISOString(),
+      views: 0,
+      engagement: 0,
+      likesCount: 0,
+      sharesCount: 0,
+      commentsCount: 0
+    }));
+
+    const existingIds = new Set(mappedReels.map(r => r.id));
+    const mappedVideos = rawVideos
+      .filter(v => !existingIds.has(v.id))
+      .map(v => ({
+        id: v.id,
+        type: 'reel',
+        typeLabel: 'Thước phim Reel',
+        message: v.description || '(Video ngắn Facebook)',
+        full_picture: v.picture || null,
+        permalink_url: v.permalink_url ? (v.permalink_url.startsWith('http') ? v.permalink_url : `https://facebook.com${v.permalink_url}`) : `https://facebook.com/${pageId}`,
+        created_time: v.created_time || new Date().toISOString(),
+        views: v.views || 0,
+        engagement: (v.likes?.summary?.total_count || 0) + (v.comments?.summary?.total_count || 0),
+        likesCount: v.likes?.summary?.total_count || 0,
+        sharesCount: 0,
+        commentsCount: v.comments?.summary?.total_count || 0
+      }));
+
+    reels = [...mappedReels, ...mappedVideos];
+  } catch (err) {
+    console.warn(`Lỗi lấy reels của page ${pageId}:`, err.message);
+  }
+
+  // Kết hợp cả bài viết, Tin dạng ảnh và Thước phim Reel, sắp xếp theo thời gian mới nhất
+  const combined = [...stories, ...reels, ...posts].sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
   return combined.length > 0 ? combined : posts;
 }
 
