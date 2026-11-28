@@ -256,6 +256,51 @@ export async function getYoutubeChannelData(channelId = null) {
       });
     }
 
+    // 3. Lấy thông tin thống kê chi tiết realtime (lượt xem, like, comment) cho từng video từ YouTube Data API
+    const videoIds = recentVideos.map(v => v.id).filter(Boolean);
+    let totalVideoViews = 0;
+    let totalVideoLikes = 0;
+    let totalVideoComments = 0;
+
+    if (videoIds.length > 0) {
+      try {
+        const statsRes = await youtube.videos.list({
+          part: ['statistics', 'status'],
+          id: videoIds.join(',')
+        });
+        const statsMap = {};
+        (statsRes.data.items || []).forEach(item => {
+          const vc = Number(item.statistics?.viewCount || 0);
+          const lc = Number(item.statistics?.likeCount || 0);
+          const cc = Number(item.statistics?.commentCount || 0);
+          totalVideoViews += vc;
+          totalVideoLikes += lc;
+          totalVideoComments += cc;
+          statsMap[item.id] = {
+            viewCount: vc,
+            likeCount: lc,
+            commentCount: cc,
+            privacyStatus: item.status?.privacyStatus || 'public'
+          };
+        });
+
+        recentVideos = recentVideos.map(v => {
+          const s = statsMap[v.id] || { viewCount: 0, likeCount: 0, commentCount: 0 };
+          return {
+            ...v,
+            views: s.viewCount,
+            likes: s.likeCount,
+            comments: s.commentCount,
+            statistics: s
+          };
+        });
+      } catch (e) {
+        console.warn('Lỗi lấy statistics chi tiết cho videos:', e.message);
+      }
+    }
+
+    const computedViews = Math.max(Number(ch?.statistics?.viewCount || 0), totalVideoViews);
+
     const freshAvatar = ch?.snippet?.thumbnails?.high?.url 
       || ch?.snippet?.thumbnails?.medium?.url 
       || ch?.snippet?.thumbnails?.default?.url 
@@ -269,12 +314,17 @@ export async function getYoutubeChannelData(channelId = null) {
       avatar: freshAvatar,
       thumbnails: ch.snippet.thumbnails,
       subscriberCount: Number(ch.statistics?.subscriberCount || 0),
-      viewCount: Number(ch.statistics?.viewCount || 0),
-      videoCount: Number(ch.statistics?.videoCount || 0),
-      statistics: ch.statistics || {
-        subscriberCount: 0,
-        viewCount: 0,
-        videoCount: 0
+      viewCount: computedViews,
+      likeCount: totalVideoLikes,
+      commentCount: totalVideoComments,
+      videoCount: Math.max(Number(ch.statistics?.videoCount || 0), recentVideos.length),
+      statistics: {
+        ...ch.statistics,
+        subscriberCount: Number(ch.statistics?.subscriberCount || 0),
+        viewCount: computedViews,
+        likeCount: totalVideoLikes,
+        commentCount: totalVideoComments,
+        videoCount: Math.max(Number(ch.statistics?.videoCount || 0), recentVideos.length)
       }
     } : {
       ...ytChannel,
@@ -282,16 +332,20 @@ export async function getYoutubeChannelData(channelId = null) {
       avatar: ytChannel.avatar,
       statistics: {
         subscriberCount: ytChannel.subscriberCount || 0,
-        viewCount: ytChannel.viewCount || 0,
-        videoCount: ytChannel.videoCount || 0
+        viewCount: computedViews || ytChannel.viewCount || 0,
+        likeCount: totalVideoLikes,
+        commentCount: totalVideoComments,
+        videoCount: Math.max(ytChannel.videoCount || 0, recentVideos.length)
       }
     };
 
-    if (freshAvatar && freshAvatar !== ytChannel.avatar) {
-      ytChannel.avatar = freshAvatar;
-      if (db.addOrUpdateChannel) {
-        db.addOrUpdateChannel(ytChannel);
-      }
+    // Cập nhật thông tin mới nhất vào channels.json
+    ytChannel.subscriberCount = channelData.subscriberCount;
+    ytChannel.viewCount = channelData.viewCount;
+    ytChannel.videoCount = channelData.videoCount;
+    if (freshAvatar) ytChannel.avatar = freshAvatar;
+    if (db.addOrUpdateChannel) {
+      db.addOrUpdateChannel(ytChannel);
     }
 
     return {

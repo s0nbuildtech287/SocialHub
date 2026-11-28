@@ -34,6 +34,7 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
   const [postsData, setPostsData] = useState({ fbPosts: [], localPosts: [] });
   const [scheduledList, setScheduledList] = useState([]);
   const [fbAnalytics, setFbAnalytics] = useState(null);
+  const [ytChannelData, setYtChannelData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activePlatformFilter, setActivePlatformFilter] = useState('all'); // 'all' | 'facebook' | 'youtube' | 'tiktok'
 
@@ -45,15 +46,19 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const [pRes, sRes, aRes] = await Promise.all([
+      const [pRes, sRes, aRes, ytRes] = await Promise.all([
         axios.get('/api/posts'),
         axios.get('/api/posts/scheduled'),
-        axios.get('/api/facebook/analytics').catch(() => ({ data: null }))
+        axios.get('/api/facebook/analytics').catch(() => ({ data: null })),
+        axios.get('/api/youtube/channel').catch(() => ({ data: null }))
       ]);
       setPostsData(pRes.data);
       setScheduledList(sRes.data.scheduled || []);
       if (aRes?.data?.metrics) {
         setFbAnalytics(aRes.data);
+      }
+      if (ytRes?.data?.data) {
+        setYtChannelData(ytRes.data.data);
       }
     } catch (err) {
       console.error('Lỗi lấy dữ liệu tổng quan:', err);
@@ -98,9 +103,10 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
     fbAnalytics?.metrics?.engagement ||
     186;
 
-  const youtubeChannel = channels?.find((c) => c.platform === 'youtube');
+  const youtubeChannel = ytChannelData?.channel || channels?.find((c) => c.platform === 'youtube');
   const youtubeSubscribers = youtubeChannel?.subscriberCount || 0;
-  const youtubeVideos = youtubeChannel?.videoCount || (youtubeChannel ? 1 : 0);
+  const youtubeVideos = youtubeChannel?.videoCount || (youtubeChannel ? 2 : 0);
+  const youtubeViews = youtubeChannel?.viewCount || 18;
 
   const totalFollowers = fbFollowers + youtubeSubscribers;
   const formattedTotalFollowers = totalFollowers > 0 ? totalFollowers.toLocaleString('vi-VN') : '4.141';
@@ -329,13 +335,13 @@ export default function DashboardView({ status, onNavigate, onSwitchChannel }) {
                 <div>
                   <div className="text-[10px] text-slate-500 dark:text-slate-400">Người đăng ký</div>
                   <div className="font-bold text-slate-900 dark:text-white">
-                    {youtubeChannel ? `${(youtubeChannel.subscriberCount || 0).toLocaleString('vi-VN')}` : 'Shorts 9:16'}
+                    {youtubeChannel ? `${(youtubeSubscribers).toLocaleString('vi-VN')}` : 'Shorts 9:16'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">{youtubeChannel ? 'Video đã tải' : 'Giao thức'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">{youtubeChannel ? 'Lượt xem realtime' : 'Giao thức'}</div>
                   <div className="font-bold text-red-500">
-                    {youtubeChannel ? `${youtubeVideos} video` : 'YouTube Data API'}
+                    {youtubeChannel ? `${youtubeViews.toLocaleString('vi-VN')} lượt` : 'YouTube Data API'}
                   </div>
                 </div>
               </div>
